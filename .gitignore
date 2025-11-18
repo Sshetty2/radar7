@@ -40,3 +40,4 @@ CLAUDE.md
 .vercel
 .vscode
 .env*.local
+.eslintcache
