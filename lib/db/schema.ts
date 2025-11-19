@@ -1,6 +1,5 @@
 import type { InferSelectModel } from 'drizzle-orm';
 import {
-  pgTable,
   varchar,
   timestamp,
   json,
@@ -8,10 +7,13 @@ import {
   text,
   primaryKey,
   foreignKey,
-  boolean
+  boolean,
+  pgSchema
 } from 'drizzle-orm/pg-core';
 
-export const user = pgTable('User', {
+export const clientSchema = pgSchema('client');
+
+export const user = clientSchema.table('User', {
   id: uuid('id').primaryKey()
     .notNull()
     .defaultRandom(),
@@ -21,7 +23,7 @@ export const user = pgTable('User', {
 
 export type User = InferSelectModel<typeof user>;
 
-export const chat = pgTable('Chat', {
+export const chat = clientSchema.table('Chat', {
   id: uuid('id').primaryKey()
     .notNull()
     .defaultRandom(),
@@ -37,7 +39,7 @@ export const chat = pgTable('Chat', {
 
 export type Chat = InferSelectModel<typeof chat>;
 
-export const message = pgTable('Message', {
+export const message = clientSchema.table('Message', {
   id: uuid('id').primaryKey()
     .notNull()
     .defaultRandom(),
@@ -51,7 +53,7 @@ export const message = pgTable('Message', {
 
 export type Message = InferSelectModel<typeof message>;
 
-export const vote = pgTable(
+export const vote = clientSchema.table(
   'Vote',
   {
     chatId: uuid('chatId')
@@ -67,7 +69,7 @@ export const vote = pgTable(
 
 export type Vote = InferSelectModel<typeof vote>;
 
-export const document = pgTable(
+export const document = clientSchema.table(
   'Document',
   {
     id: uuid('id').notNull()
@@ -87,7 +89,7 @@ export const document = pgTable(
 
 export type Document = InferSelectModel<typeof document>;
 
-export const suggestion = pgTable(
+export const suggestion = clientSchema.table(
   'Suggestion',
   {
     id: uuid('id').notNull()
