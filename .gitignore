@@ -41,3 +41,4 @@ CLAUDE.md
 .vscode
 .env*.local
 .eslintcache
+tsconfig.tsbuildinfo
