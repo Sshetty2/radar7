@@ -8,9 +8,11 @@ This document details the interaction model between the Event Detail Modal and t
 ## Requirements
 
 ### 1. Modal Behavior
-- ✅ Modal should close when clicking outside (standard modal backdrop behavior)
+- ✅ **Full View**: Modal closes when clicking outside (standard modal backdrop behavior)
+- ✅ **Minimized View**: Modal only closes via close button (not backdrop dismissible)
 - ✅ Modal content should remain open when clicked (prevent close)
 - ✅ Modal should display event details selected from markers or sidebar
+- ✅ Smooth transition between full and minimized views
 
 ### 2. Sidebar Behavior
 - ✅ Sidebar should remain fully interactive when modal is open
@@ -18,9 +20,15 @@ This document details the interaction model between the Event Detail Modal and t
 - ✅ Sidebar can be toggled open/closed independently of modal state
 
 ### 3. Layout Behavior
-- ✅ Modal should shift left when sidebar is open to avoid overlap
+- ✅ **Full View**: Modal shifts left when sidebar is open to avoid overlap
+- ✅ **Minimized View**: Fixed bottom-left position, independent of sidebar
 - ✅ Modal and sidebar should have distinct z-index layers
 - ✅ Both components should maintain glass-morphism styling
+
+### 4. View States
+- ✅ **Full View**: Center screen, complete event details, larger card
+- ✅ **Minimized View**: Bottom-left corner, compact card, key info only
+- ✅ Toggle between views via Minimize/Maximize button
 
 ---
 
@@ -82,16 +90,47 @@ Sidebar                      z-index: 70
 
 ## Click Interaction Flow
 
-### Scenario 1: Click on Map (Modal Open, Sidebar Closed)
+### Scenario 1: Click on Map (Full View Modal, Sidebar Closed)
 ```
 User clicks map
   → Click hits modal overlay (z-55)
   → handleOverlayClick triggered
+  → isMinimized === false
   → e.target === e.currentTarget (direct click)
   → Modal closes ✅
 ```
 
-### Scenario 2: Click on Modal Content
+### Scenario 2: Click on Map (Minimized View Modal)
+```
+User clicks map
+  → No overlay rendered (isMinimized === true)
+  → Click goes directly to map ✅
+  → Map is fully interactive and scrollable
+  → Modal stays open (floating in top-left)
+  → User must click close button to dismiss
+```
+
+### Scenario 3: Click Minimize/Maximize Button
+```
+User clicks minimize icon (full view, top-right of modal)
+  → toggleMinimize() called
+  → isMinimized: false → true
+  → Modal transitions to top-left
+  → Overlay is removed completely
+  → Map becomes fully interactive
+  → Toggle button moves to top-left of card
+  → Modal becomes non-dismissible by backdrop ✅
+
+User clicks maximize icon (minimized view, top-left of card)
+  → toggleMinimize() called
+  → isMinimized: true → false
+  → Modal transitions to center
+  → Overlay renders with backdrop
+  → Toggle button moves to top-right
+  → Modal becomes backdrop-dismissible ✅
+```
+
+### Scenario 4: Click on Modal Content
 ```
 User clicks modal content
   → Click hits modal div (z-60)
@@ -100,7 +139,7 @@ User clicks modal content
   → Modal stays open ✅
 ```
 
-### Scenario 3: Click on Sidebar (Both Open)
+### Scenario 5: Click on Sidebar (Both Open)
 ```
 User clicks sidebar event
   → Click hits sidebar (z-70)
@@ -109,36 +148,74 @@ User clicks sidebar event
   → Event selection handler triggers
   → Modal content updates with new event ✅
   → Modal stays open ✅
+  → View state (minimized/full) persists
 ```
 
-### Scenario 4: Click on Map with Sidebar Visible
+### Scenario 6: Click on Map with Sidebar Visible
 ```
 User clicks map between modal and sidebar
   → Click hits modal overlay (z-55)
   → handleOverlayClick triggered
-  → Modal closes ✅
+  → If full view: Modal closes ✅
+  → If minimized: Modal stays open ✅
   → Sidebar remains open (independent state)
 ```
 
 ---
 
-## Dynamic Positioning
+## Dynamic Positioning & Sizing
 
-### Modal Positioning Logic (`components/events/event-detail-popover.tsx` lines 145-146)
+### Modal View States (`components/events/event-detail-popover.tsx`)
+
+#### Full View Positioning
 ```tsx
+// Full: Center screen, larger size
+'top-[45%] -translate-y-1/2 w-full max-w-2xl'
 sidebarOpen 
-  ? 'left-[calc(50%-8.5rem)]'          // Shifted left
+  ? 'left-1/3 -translate-x-1/3'        // Shifted left when sidebar open
   : 'left-1/2 -translate-x-1/2'        // Centered
 ```
 
-**Calculation Breakdown**:
-- Default: `left-1/2 -translate-x-1/2` = perfectly centered
-- When sidebar open: `left-[calc(50%-8.5rem)]`
-  - `50%` = viewport center
-  - `-8.5rem` = shift left to avoid sidebar overlap
-  - This positions modal so it doesn't interfere with floating sidebar
+**Behavior**:
+- Vertically centered at 45% from top
+- Horizontally shifts based on sidebar state
+- Max width: 32rem (2xl)
+- Backdrop-dismissible
 
-**Transition**: `transition-all duration-300` provides smooth sliding animation
+#### Minimized View Positioning
+```tsx
+// Minimized: Below logo area, larger responsive sizing
+'left-[8vw] top-[12vh] w-[clamp(420px,32vw,540px)]'
+```
+
+**Behavior**:
+- **Responsive position**: 8vw from left, 12vh from top (adjusts to viewport)
+- **Responsive width**: `clamp(420px, 32vw, 540px)` - scales between 420-540px based on viewport
+- Auto height based on content
+- Not backdrop-dismissible
+- Independent of sidebar state
+- **Map remains fully scrollable** (no overlay blocking)
+- **Close button**: Always top-right corner
+- **Minimize toggle**: Top-left corner
+
+### Overlay Behavior Changes
+```tsx
+// Overlay only renders in full view
+{!isMinimized && (
+  <div className="fixed inset-0 z-[55] bg-black/60 backdrop-blur-[2px]" />
+)}
+```
+
+**Key Change**: Overlay is completely **removed** when minimized (not just dimmed)
+- Allows full map interaction and scrolling
+- No blur effect on map UI when minimized
+- Cleaner UX for browsing map with event card visible
+
+**Transition**: `transition-all duration-300` provides smooth animations for:
+- Position changes
+- Size changes
+- Opacity changes
+- Blur intensity
 
 ---
 
@@ -164,15 +241,36 @@ sidebarOpen
 ## Testing Scenarios
 
 ### Manual Testing Checklist
-- [ ] Click map marker → Modal opens
-- [ ] Click outside modal → Modal closes
+
+#### Basic Modal Operations
+- [ ] Click map marker → Modal opens in full view
+- [ ] Click outside modal (full view) → Modal closes
 - [ ] Click modal content → Modal stays open
+- [ ] Close button on modal → Modal closes
+
+#### Minimize/Maximize
+- [ ] Click minimize button → Modal transitions to bottom-left
+- [ ] Click outside modal (minimized) → Modal stays open
+- [ ] Click maximize button → Modal transitions to center
+- [ ] Minimize state persists when switching events
+- [ ] Closing modal resets to full view on next open
+
+#### Sidebar Interactions
 - [ ] Click sidebar toggle → Sidebar opens
 - [ ] Click sidebar event (modal closed) → Modal opens with that event
-- [ ] Click sidebar event (modal open) → Modal updates content
-- [ ] Open sidebar with modal open → Modal shifts left
-- [ ] Click map with both open → Modal closes, sidebar stays
-- [ ] Close button on modal → Modal closes
+- [ ] Click sidebar event (modal open, full view) → Modal updates content
+- [ ] Click sidebar event (modal minimized) → Modal updates content, stays minimized
+- [ ] Open sidebar with modal (full view) → Modal shifts left
+- [ ] Open sidebar with modal (minimized) → Modal position unchanged
+- [ ] Click map with both open (full view) → Modal closes, sidebar stays
+- [ ] Click map with both open (minimized) → Modal stays open, sidebar stays
+
+#### Visual Transitions
+- [ ] Minimize animation is smooth (300ms)
+- [ ] Maximize animation is smooth (300ms)
+- [ ] Overlay dims appropriately in minimized view
+- [ ] All content is visible in both views
+- [ ] No layout jump when toggling sidebar
 
 ---
 
@@ -220,5 +318,52 @@ sidebarOpen
 
 ## Version History
 - **2024-11-20**: Initial implementation with custom overlay approach
+- **2024-11-20**: Added minimize/maximize functionality with two view states (full & minimized)
+  - Minimized view: bottom-left corner, compact card, not backdrop-dismissible
+  - Full view: center screen, complete details, backdrop-dismissible
+  - Smooth transitions between states
+  - State persists when switching events
 - **Future**: Document any interaction model changes here
+
+## Implementation Notes
+
+### State Management
+The `isMinimized` state is managed locally in the `EventDetailPopover` component:
+```tsx
+const [isMinimized, setIsMinimized] = useState(false);
+```
+
+**Design Decision**: Local state (not Redux) because:
+- View preference is session-specific (no need for global state)
+- Resets to full view on modal close (sensible default)
+- Simpler implementation without Redux boilerplate
+- No cross-component synchronization needed
+
+### Content Rendering
+Two completely different render paths based on `isMinimized`:
+
+**Minimized View Content** (responsive width 420-540px, photo spans right 40%):
+- **Layout**: Horizontal split - 60% info / 40% photo
+- **Left side (60%)** - Event info with padding:
+  - Title (2-line clamp) & category badge
+  - Short date format (e.g., "Fri, Nov 22")
+  - Time range
+  - Venue name & address (truncated)
+  - RSVP count & price badge inline
+- **Right side (40%)**: Event photo spans full height, rounded right corner
+  - Photo has more prominent presence
+  - `object-cover` maintains aspect ratio
+- **Controls**:
+  - Minimize toggle: top-left
+  - Close button: top-right
+
+**Full View Content** (center, max-width 672px):
+- Hero image with title overlay
+- Complete event description
+- All metadata (organizer, RSVP stats, price, type, source)
+- Action buttons (View Event, Get Tickets)
+- Toggle button on top-right
+- Close button next to toggle
+
+This approach ensures optimal performance—only rendering what's needed for each view state.
 
