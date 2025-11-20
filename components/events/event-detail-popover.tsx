@@ -161,8 +161,8 @@ export function EventDetailPopover () {
 
           // View-specific positioning and sizing
           isMinimized ? [
-            // Minimized: Below logo area, more to the right, larger responsive sizing
-            'left-[8vw] top-[12vh] w-[clamp(420px,32vw,540px)]',
+            // Minimized: Below logo area, more to the right, wider and shorter
+            'left-[8vw] top-[12vh] w-[clamp(520px,38vw,640px)] h-[clamp(220px,28vh,300px)]',
             'sm:rounded-[12px] shadow-2xl'
           ] : [
             // Full: Center screen, larger size
@@ -223,10 +223,10 @@ export function EventDetailPopover () {
         {/* MINIMIZED VIEW - Compact card with photo on right side */}
         {isMinimized ? (
           <div className="flex h-full overflow-hidden">
-            {/* Left side - Event info (60%) */}
-            <div className="flex w-[60%] flex-col p-4 pl-12">
-              {/* Title and category */}
-              <div className="mb-3">
+            {/* Left side - Event info (62%) */}
+            <div className="flex w-[62%] flex-col p-6">
+              {/* Title and category - with left padding for minimize button */}
+              <div className="mb-3 pl-8">
                 <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-white">
                   {selectedEvent.title}
                 </h3>
@@ -238,33 +238,33 @@ export function EventDetailPopover () {
                 )}
               </div>
 
-              {/* Event details - condensed */}
-              <div className="space-y-1.5 text-xs text-gray-300">
-                {/* Date & Time */}
-                <div className="flex items-start gap-1.5">
+              {/* Event details - Date/Time and Venue side by side */}
+              <div className="flex gap-3 text-xs text-gray-300">
+                {/* Date & Time - Left side */}
+                <div className="flex flex-1 items-start gap-1.5">
                   <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
                   <div className="min-w-0">
-                    <p className="font-medium text-white">
+                    <p className="text-[11px] font-medium text-white">
                       {new Date(selectedEvent.startsAt || '').toLocaleDateString('en-US', {
                         weekday: 'short',
                         month  : 'short',
                         day    : 'numeric'
                       })}
                     </p>
-                    <p className="text-[11px] text-gray-400">
+                    <p className="text-[10px] text-gray-400">
                       {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
                     </p>
                   </div>
                 </div>
 
-                {/* Venue */}
+                {/* Venue - Right side */}
                 {selectedEvent.venueName && (
-                  <div className="flex items-start gap-1.5">
+                  <div className="flex flex-1 items-start gap-1.5">
                     <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
                     <div className="min-w-0">
-                      <p className="truncate font-medium text-white">{selectedEvent.venueName}</p>
+                      <p className="truncate text-[11px] font-medium text-white">{selectedEvent.venueName}</p>
                       {selectedEvent.venueAddress && (
-                        <p className="truncate text-[11px] text-gray-400">
+                        <p className="truncate text-[10px] text-gray-400">
                           {selectedEvent.venueAddress}
                         </p>
                       )}
@@ -273,8 +273,17 @@ export function EventDetailPopover () {
                 )}
               </div>
 
+              {/* Description - scrollable */}
+              {selectedEvent.description && (
+                <div className="mt-2 flex-1 overflow-y-auto pr-2">
+                  <p className="text-[11px] leading-relaxed text-gray-300">
+                    {selectedEvent.description}
+                  </p>
+                </div>
+              )}
+
               {/* RSVP & Price - inline at the bottom */}
-              <div className="mt-auto flex items-center gap-3 pt-3">
+              <div className="mt-auto flex items-center gap-3 pt-2">
                 {selectedEvent.rsvpCount && selectedEvent.rsvpCount > 0 && (
                   <div className="flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 shrink-0 text-gray-400" />
@@ -293,14 +302,14 @@ export function EventDetailPopover () {
               </div>
             </div>
 
-            {/* Right side - Event photo (40%) - Full height */}
+            {/* Right side - Event photo (38%) - Full height, responsive object-fit */}
             {selectedEvent.imageUrl && (
-              <div className="w-[40%] overflow-hidden rounded-r-[12px]">
+              <div className="w-[38%] overflow-hidden rounded-r-[12px]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={selectedEvent.imageUrl}
                   alt={selectedEvent.title || 'Event'}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover object-center"
                 />
               </div>
             )}
