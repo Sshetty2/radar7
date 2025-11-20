@@ -1,15 +1,11 @@
 'use client';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { setSelectedEvent, selectSelectedEventId } from '@/lib/store/slices/uiSlice';
+import { setSelectedEvent, selectSelectedEventId, selectSidebarOpen } from '@/lib/store/slices/uiSlice';
+import { cn } from '@/lib/utils';
 import {
   Calendar,
   MapPin,
@@ -17,7 +13,8 @@ import {
   ExternalLink,
   Navigation,
   User,
-  Clock
+  Clock,
+  X
 } from 'lucide-react';
 import { GLASS_EFFECT_STYLE } from '@/lib/constants/styles';
 
@@ -25,6 +22,7 @@ export function EventDetailPopover () {
   const dispatch = useAppDispatch();
   const selectedEventId = useAppSelector(selectSelectedEventId);
   const allEvents = useAppSelector(state => state.events.allEvents);
+  const sidebarOpen = useAppSelector(selectSidebarOpen);
 
   const selectedEvent = allEvents.find(e => e.id === selectedEventId);
 
@@ -92,14 +90,76 @@ export function EventDetailPopover () {
     return source.charAt(0).toUpperCase() + source.slice(1);
   };
 
+  /**
+   * EVENT DETAIL MODAL INTERACTION DOCUMENTATION
+   * ============================================
+   *
+   * REQUIREMENTS:
+   * 1. Modal should be closeable by clicking outside (standard modal behavior)
+   * 2. Sidebar should remain clickable/interactive when both are open
+   * 3. Clicking events in the sidebar should update this modal's content
+   * 4. Modal should shift left when sidebar is open to avoid overlap
+   *
+   * IMPLEMENTATION:
+   * - Use custom overlay with pointer-events-none to allow clicks through
+   * - Add click handler to overlay div that closes modal (simulates backdrop click)
+   * - Exclude sidebar and modal content from closing (via stopPropagation)
+   * - Sidebar has z-[70], modal content has z-[60], overlay has z-[55]
+   *
+   * KEY CLASSES:
+   * - Overlay: pointer-events-auto on parent, but children control their own pointer-events
+   * - Modal Content: pointer-events-auto to capture clicks
+   * - Sidebar: Already has pointer-events-auto (inherent in its implementation)
+   *
+   * RELATED FILES:
+   * - components/events/event-sidebar.tsx (z-[70] for Sheet content)
+   * - components/ui/sheet.tsx (Sidebar base component)
+   */
+
+  // Handle clicking outside modal (but not on sidebar)
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    // Only close if clicking directly on the overlay (not bubbled from modal content)
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
+  if (!selectedEventId || !selectedEvent) {
+    return null;
+  }
+
   return (
-    <Dialog
-      open={!!selectedEventId}
-      onOpenChange={handleClose}>
-      <DialogContent
-        className="z-[60] w-full max-w-2xl overflow-hidden border-[rgba(35,34,34,0.59)] bg-transparent p-0 text-white top-[45%] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:duration-300 data-[state=closed]:duration-200 sm:rounded-[12px]"
+    <>
+      {/* Custom Modal Overlay - allows clicks through to sidebar */}
+      <div
+        className="fixed inset-0 z-[55] bg-black/60 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        onClick={handleOverlayClick}
+        data-state={selectedEventId ? 'open' : 'closed'}
+      />
+
+      {/* Modal Content - positioned and interactive */}
+      <div
+        className={cn(
+          'fixed top-[45%] z-[60] w-full max-w-2xl -translate-y-1/2 overflow-hidden border-[rgba(35,34,34,0.59)] bg-transparent p-0 text-white transition-all duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:duration-300 data-[state=closed]:duration-200 sm:rounded-[12px]',
+
+          // // Center by default, shift left when sidebar is open
+          sidebarOpen ? 'left-1/3 -translate-x-1/3' : 'left-1/2 -translate-x-1/2',
+
+          // Prevent clicks from closing modal (stopPropagation handled inline below)
+          'pointer-events-auto'
+        )}
         style={GLASS_EFFECT_STYLE}
+        data-state={selectedEventId ? 'open' : 'closed'}
+        onClick={e => e.stopPropagation()}
       >
+        {/* Close button */}
+        <button
+          onClick={handleClose}
+          className="absolute right-4 top-4 z-10 rounded-sm text-white opacity-90 transition-opacity hover:opacity-100 focus:outline-none"
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
         {/* Hero Image + Title */}
         {selectedEvent.imageUrl ? (
           <div className="relative aspect-[2.5/1] w-full overflow-hidden rounded-t-[12px]">
@@ -112,9 +172,9 @@ export function EventDetailPopover () {
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
             <div className="absolute inset-x-6 bottom-3 flex items-end justify-between gap-4">
               <div className="max-w-[70%]">
-                <DialogTitle className="text-xl font-semibold leading-tight text-white">
+                <h2 className="text-xl font-semibold leading-tight text-white">
                   {selectedEvent.title}
-                </DialogTitle>
+                </h2>
               </div>
               {selectedEvent.category && (
                 <div className="shrink-0 rounded-full border border-white/60 bg-white/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
@@ -125,9 +185,9 @@ export function EventDetailPopover () {
           </div>
         ) : (
           <div className="px-6 pt-4">
-            <DialogTitle className="text-xl font-semibold leading-tight text-white">
+            <h2 className="text-xl font-semibold leading-tight text-white">
               {selectedEvent.title}
-            </DialogTitle>
+            </h2>
             {selectedEvent.category && (
               <div className="mt-2 w-fit rounded-full border border-white/60 bg-white/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
                 {selectedEvent.category}
@@ -303,7 +363,7 @@ export function EventDetailPopover () {
             </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
   );
 }
