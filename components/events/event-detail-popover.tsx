@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,10 +41,6 @@ export function EventDetailPopover () {
     // Remove focus from the button to prevent focus ring
     e.currentTarget.blur();
   };
-
-  if (!selectedEvent) {
-    return null;
-  }
 
   const formatDate = (date: Date | string | null | undefined) => {
     if (!date) {
@@ -85,7 +82,7 @@ export function EventDetailPopover () {
   };
 
   const getDirectionsUrl = () => {
-    if (!selectedEvent.venueAddress) {
+    if (!selectedEvent?.venueAddress) {
       return '#';
     }
     const query = encodeURIComponent(selectedEvent.venueAddress);
@@ -141,390 +138,477 @@ export function EventDetailPopover () {
     }
   };
 
-  if (!selectedEventId || !selectedEvent) {
-    return null;
-  }
+  // Calculate position values for smooth transitions
+  const getModalPosition = () => {
+    if (isMinimized) {
+      // Minimized position: top-left
+      return {
+        left: '8vw',
+        top : '12vh'
+      };
+    }
+
+    // Full position: center (with sidebar adjustment)
+    return {
+      left: sidebarOpen ? 'calc(50% - 10%)' : '50%',
+      top : '45%'
+    };
+  };
 
   return (
-    <>
-      {/* Custom Modal Overlay - only visible in full view */}
-      {!isMinimized && (
-        <div
-          className="fixed inset-0 z-[55] bg-black/60 backdrop-blur-[2px] transition-all duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-          onClick={handleOverlayClick}
-          data-state={selectedEventId ? 'open' : 'closed'}
-        />
-      )}
+    <AnimatePresence>
+      {selectedEventId && selectedEvent && (
+        <>
+          {/* Custom Modal Overlay - only visible in full view */}
+          <AnimatePresence>
+            {!isMinimized && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  duration: 0.25,
+                  ease    : 'easeInOut'
+                }}
+                className="fixed inset-0 z-[55] bg-black/60 backdrop-blur-[2px]"
+                onClick={handleOverlayClick}
+              />
+            )}
+          </AnimatePresence>
 
-      {/* Modal Content - switches between full and minimized views */}
-      <div
-        className={cn(
-          'glass fixed z-[60] overflow-hidden bg-transparent p-0 glass-text transition-all duration-300 pointer-events-auto',
+          {/* Modal Content - switches between full and minimized views */}
+          <motion.div
+            key="event-modal"
+            initial={{
+              opacity: 0,
+              scale  : 0.96
+            }}
+            animate={{
+              opacity: 1,
+              scale  : 1
+            }}
+            exit={{
+              opacity: 0,
+              scale  : 0.96
+            }}
+            transition={{
+              duration: 0.2,
+              ease    : 'easeOut'
+            }}
+            style={{
+              left: getModalPosition().left,
+              top : getModalPosition().top
+            }}
+            className={cn(
+              'glass fixed z-[60] overflow-hidden bg-transparent p-0 glass-text pointer-events-auto transition-all duration-300 ease-out',
 
-          // View-specific positioning and sizing
-          isMinimized ? [
-            // Minimized: Below logo area, responsive sizing for different viewports
-            'left-[8vw] top-[12vh] w-[clamp(380px,36vw,640px)] h-[clamp(200px,28vh,320px)]',
-            'sm:rounded-[12px] shadow-2xl'
-          ] : [
-            // Full: Center screen, extreme responsive sizing to ensure sidebar toggle is always visible
-            'top-[45%] -translate-y-1/2 w-[calc(100%-2rem)] max-w-[280px] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[420px] xl:max-w-[520px] 2xl:max-w-2xl px-4 sm:px-0',
-            sidebarOpen ? '2xl:left-[42%] 2xl:-translate-x-[42%] xl:left-[35%] xl:-translate-x-[35%] lg:left-[28%] lg:-translate-x-[28%] md:left-[25%] md:-translate-x-[25%] sm:left-[22%] sm:-translate-x-[22%] left-1/2 -translate-x-1/2' : 'left-1/2 -translate-x-1/2',
-            'sm:rounded-[12px]'
-          ]
-        )}
-        data-state={selectedEventId ? 'open' : 'closed'}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Control buttons - always top-right, but minimize on left in minimized view */}
-        {isMinimized ? (
-          <>
-            {/* Minimize toggle - top left */}
-            <button
-              onClick={toggleMinimize}
-              className="glass absolute left-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
-              title="Maximize"
-            >
-              <Maximize2 className="h-4 w-4" />
-              <span className="sr-only">Maximize</span>
-            </button>
-            {/* Close button - top right */}
-            <button
-              onClick={handleClose}
-              className="glass absolute right-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
-              title="Close"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </button>
-          </>
-        ) : (
-          <>
-            {/* Minimize button - left side */}
-            <button
-              onClick={toggleMinimize}
-              className="glass absolute left-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
-              title="Minimize"
-            >
-              <Minimize2 className="h-4 w-4" />
-              <span className="sr-only">Minimize</span>
-            </button>
-            {/* Close button - right side */}
-            <button
-              onClick={handleClose}
-              className="glass absolute right-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
-              title="Close"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </button>
-          </>
-        )}
+              // View-specific positioning and sizing
+              isMinimized ? [
+                // Minimized: Below logo area, responsive sizing for different viewports
+                'w-[clamp(380px,36vw,640px)] h-[clamp(200px,28vh,320px)]',
+                'sm:rounded-[12px] shadow-2xl'
+              ] : [
+                // Full: Center screen, extreme responsive sizing to ensure sidebar toggle is always visible
+                'w-[calc(100%-2rem)] max-w-[280px] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[420px] xl:max-w-[520px] 2xl:max-w-2xl px-4 sm:px-0',
+                sidebarOpen ? '-translate-x-1/2' : '-translate-x-1/2',
+                '-translate-y-1/2',
+                'sm:rounded-[12px]'
+              ]
+            )}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Control buttons - always top-right, but minimize on left in minimized view */}
+            {isMinimized ? (
+              <>
+                {/* Minimize toggle - top left */}
+                <button
+                  onClick={toggleMinimize}
+                  className="glass absolute left-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
+                  title="Maximize"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                  <span className="sr-only">Maximize</span>
+                </button>
+                {/* Close button - top right */}
+                <button
+                  onClick={handleClose}
+                  className="glass absolute right-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
+                  title="Close"
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Minimize button - left side */}
+                <button
+                  onClick={toggleMinimize}
+                  className="glass absolute left-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
+                  title="Minimize"
+                >
+                  <Minimize2 className="h-4 w-4" />
+                  <span className="sr-only">Minimize</span>
+                </button>
+                {/* Close button - right side */}
+                <button
+                  onClick={handleClose}
+                  className="glass absolute right-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
+                  title="Close"
+                >
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </button>
+              </>
+            )}
 
-        {/* MINIMIZED VIEW - Compact card with photo on right side */}
-        {isMinimized ? (
-          <div className="flex h-full overflow-hidden">
-            {/* Left side - Event info (62%) */}
-            <div className="flex w-[62%] flex-col p-4 md:p-6">
-              {/* Title and category - with left padding for minimize button */}
-              <div className="mb-2 pl-8">
-                <h3 className="line-clamp-2 text-sm font-semibold leading-tight glass-text">
-                  {selectedEvent.title}
-                </h3>
+            {/* MINIMIZED VIEW - Compact card with photo on right side */}
+            <AnimatePresence
+              mode="wait"
+              initial={false}>
+              {isMinimized ? (
+                <motion.div
+                  key="minimized"
+                  initial={{
+                    opacity: 0,
+                    scale  : 0.98
+                  }}
+                  animate={{
+                    opacity: 1,
+                    scale  : 1
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale  : 0.98
+                  }}
+                  transition={{
+                    duration: 0.25,
+                    ease    : 'easeInOut'
+                  }}
+                  className="flex h-full overflow-hidden"
+                >
+                  {/* Left side - Event info (62%) */}
+                  <div className="flex w-[62%] flex-col p-4 md:p-6">
+                    {/* Title and category - with left padding for minimize button */}
+                    <div className="mb-2 pl-8">
+                      <h3 className="line-clamp-2 text-sm font-semibold leading-tight glass-text">
+                        {selectedEvent.title}
+                      </h3>
 
-                {selectedEvent.category && (
-                  <div className="mt-1.5 w-fit rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider glass-text shadow-lg">
-                    {selectedEvent.category}
-                  </div>
-                )}
-              </div>
+                      {selectedEvent.category && (
+                        <div className="mt-1.5 w-fit rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider glass-text shadow-lg">
+                          {selectedEvent.category}
+                        </div>
+                      )}
+                    </div>
 
-              {/* Event details - Stack vertically on small screens, side by side on larger */}
-              <div className="flex flex-col gap-1.5 text-xs glass-text-muted md:flex-row md:gap-3">
-                {/* Date & Time */}
-                <div className="flex items-start gap-1.5">
-                  <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 glass-icon" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-medium glass-text">
-                      {new Date(selectedEvent.startsAt || '').toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month  : 'short',
-                        day    : 'numeric'
-                      })}
-                    </p>
-                    <p className="text-[10px] glass-text-muted">
-                      {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
-                    </p>
-                  </div>
-                </div>
+                    {/* Event details - Stack vertically on small screens, side by side on larger */}
+                    <div className="flex flex-col gap-1.5 text-xs glass-text-muted md:flex-row md:gap-3">
+                      {/* Date & Time */}
+                      <div className="flex items-start gap-1.5">
+                        <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 glass-icon" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[11px] font-medium glass-text">
+                            {new Date(selectedEvent.startsAt || '').toLocaleDateString('en-US', {
+                              weekday: 'short',
+                              month  : 'short',
+                              day    : 'numeric'
+                            })}
+                          </p>
+                          <p className="text-[10px] glass-text-muted">
+                            {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
+                          </p>
+                        </div>
+                      </div>
 
-                {/* Venue */}
-                {selectedEvent.venueName && (
-                  <div className="flex items-start gap-1.5">
-                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 glass-icon" />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[11px] font-medium glass-text">{selectedEvent.venueName}</p>
-                      {selectedEvent.venueAddress && (
-                        <p className="truncate text-[10px] glass-text-muted">
-                          {selectedEvent.venueAddress}
+                      {/* Venue */}
+                      {selectedEvent.venueName && (
+                        <div className="flex items-start gap-1.5">
+                          <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 glass-icon" />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[11px] font-medium glass-text">{selectedEvent.venueName}</p>
+                            {selectedEvent.venueAddress && (
+                              <p className="truncate text-[10px] glass-text-muted">
+                                {selectedEvent.venueAddress}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Description - scrollable */}
+                    {selectedEvent.description && (
+                      <div className="mt-1.5 flex-1 overflow-y-auto pr-2">
+                        <p className="text-[10px] leading-relaxed glass-text-muted md:text-[11px]">
+                          {selectedEvent.description}
                         </p>
+                      </div>
+                    )}
+
+                    {/* RSVP & Price - inline at the bottom */}
+                    <div className="mt-auto flex items-center gap-2 pt-1.5 md:gap-3 md:pt-2">
+                      {selectedEvent.rsvpCount && selectedEvent.rsvpCount > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          <Users className="h-3.5 w-3.5 shrink-0 glass-icon" />
+                          <span className="text-[11px]">
+                            <span className="font-semibold glass-text">{selectedEvent.rsvpCount}</span>
+                            {selectedEvent.rsvpTotal && <span className="glass-text-muted"> / {selectedEvent.rsvpTotal}</span>}
+                          </span>
+                        </div>
+                      )}
+
+                      {selectedEvent.price && (
+                        <div className="rounded-full border border-emerald-400/30 bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-200">
+                          {selectedEvent.price}
+                        </div>
                       )}
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Description - scrollable */}
-              {selectedEvent.description && (
-                <div className="mt-1.5 flex-1 overflow-y-auto pr-2">
-                  <p className="text-[10px] leading-relaxed glass-text-muted md:text-[11px]">
-                    {selectedEvent.description}
-                  </p>
-                </div>
-              )}
-
-              {/* RSVP & Price - inline at the bottom */}
-              <div className="mt-auto flex items-center gap-2 pt-1.5 md:gap-3 md:pt-2">
-                {selectedEvent.rsvpCount && selectedEvent.rsvpCount > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <Users className="h-3.5 w-3.5 shrink-0 glass-icon" />
-                    <span className="text-[11px]">
-                      <span className="font-semibold glass-text">{selectedEvent.rsvpCount}</span>
-                      {selectedEvent.rsvpTotal && <span className="glass-text-muted"> / {selectedEvent.rsvpTotal}</span>}
-                    </span>
-                  </div>
-                )}
-
-                {selectedEvent.price && (
-                  <div className="rounded-full border border-emerald-400/30 bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-200">
-                    {selectedEvent.price}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Right side - Event photo (38%) - Full height, responsive object-fit */}
-            {selectedEvent.imageUrl && (
-              <div className="w-[38%] overflow-hidden rounded-r-[12px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={selectedEvent.imageUrl}
-                  alt={selectedEvent.title || 'Event'}
-                  className="h-full w-full object-cover object-center"
-                />
-              </div>
-            )}
-          </div>
-        ) : (
-
-          // FULL VIEW - Complete details
-          <>
-            {/* Hero Image + Title */}
-            {selectedEvent.imageUrl ? (
-              <div className="relative aspect-[2.5/1] w-full overflow-hidden rounded-t-[12px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={selectedEvent.imageUrl}
-                  alt={selectedEvent.title || 'Event'}
-                  className="h-full w-full object-cover"
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                <div className="absolute inset-x-6 bottom-3 flex items-end justify-between gap-4">
-                  <div className="max-w-[70%]">
-                    <h2 className="text-xl font-semibold leading-tight glass-text">
-                      {selectedEvent.title}
-                    </h2>
-                  </div>
-                  {selectedEvent.category && (
-                    <div className="shrink-0 rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider glass-text shadow-lg">
-                      {selectedEvent.category}
+                  {/* Right side - Event photo (38%) - Full height, responsive object-fit */}
+                  {selectedEvent.imageUrl && (
+                    <div className="w-[38%] overflow-hidden rounded-r-[12px]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={selectedEvent.imageUrl}
+                        alt={selectedEvent.title || 'Event'}
+                        className="h-full w-full object-cover object-center"
+                      />
                     </div>
                   )}
-                </div>
-              </div>
-            ) : (
-              <div className="px-6 pt-4">
-                <h2 className="text-xl font-semibold leading-tight glass-text">
-                  {selectedEvent.title}
-                </h2>
-                {selectedEvent.category && (
-                  <div className="mt-2 w-fit rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider glass-text shadow-lg">
-                    {selectedEvent.category}
-                  </div>
-                )}
-              </div>
-            )}
+                </motion.div>
+              ) : (
 
-            {/* Content - all sections compact and visible */}
-            <div className="px-6 pb-5">
-              <div className="space-y-4 pt-4">
-                {/* Compact Info Grid */}
-                <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
-                  {/* Date & Time */}
-                  <div className="flex items-start gap-2.5">
-                    <Calendar className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium glass-text">{formatDate(selectedEvent.startsAt)}</p>
-                      <p className="mt-0.5 text-xs glass-text-muted">
-                        {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Venue & Location */}
-                  {selectedEvent.venueName && (
-                    <div className="flex items-start gap-2.5">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium glass-text">{selectedEvent.venueName}</p>
-                        {selectedEvent.venueAddress && (
-                          <>
-                            <p className="mt-0.5 text-xs glass-text-muted">
-                              {selectedEvent.venueAddress}
-                            </p>
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="mt-0.5 h-auto p-0 text-xs text-blue-400 hover:text-blue-300 dark:text-blue-300 dark:hover:text-blue-200"
-                              asChild
-                            >
-                              <a
-                                href={getDirectionsUrl()}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <Navigation className="mr-1 h-3 w-3" />
-                            Get Directions
-                              </a>
-                            </Button>
-                          </>
+              // FULL VIEW - Complete details
+                <motion.div
+                  key="full"
+                  initial={{
+                    opacity: 0,
+                    scale  : 0.98
+                  }}
+                  animate={{
+                    opacity: 1,
+                    scale  : 1
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale  : 0.98
+                  }}
+                  transition={{
+                    duration: 0.25,
+                    ease    : 'easeInOut'
+                  }}
+                >
+                  {/* Hero Image + Title */}
+                  {selectedEvent.imageUrl ? (
+                    <div className="relative aspect-[2.5/1] w-full overflow-hidden rounded-t-[12px]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={selectedEvent.imageUrl}
+                        alt={selectedEvent.title || 'Event'}
+                        className="h-full w-full object-cover"
+                      />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                      <div className="absolute inset-x-6 bottom-3 flex items-end justify-between gap-4">
+                        <div className="max-w-[70%]">
+                          <h2 className="text-xl font-semibold leading-tight glass-text">
+                            {selectedEvent.title}
+                          </h2>
+                        </div>
+                        {selectedEvent.category && (
+                          <div className="shrink-0 rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider glass-text shadow-lg">
+                            {selectedEvent.category}
+                          </div>
                         )}
                       </div>
                     </div>
-                  )}
-
-                  {/* Organizer */}
-                  {selectedEvent.organizer && (
-                    <div className="flex items-start gap-2.5">
-                      <User className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs glass-text-muted">Organized by</p>
-                        <p className="mt-0.5 font-medium glass-text">{selectedEvent.organizer}</p>
-                      </div>
+                  ) : (
+                    <div className="px-6 pt-4">
+                      <h2 className="text-xl font-semibold leading-tight glass-text">
+                        {selectedEvent.title}
+                      </h2>
+                      {selectedEvent.category && (
+                        <div className="mt-2 w-fit rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider glass-text shadow-lg">
+                          {selectedEvent.category}
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
 
-                {/* Description - Only this scrolls */}
-                {selectedEvent.description && (
-                  <div>
-                    <h3 className="mb-2 text-sm font-semibold glass-text">About this event</h3>
-                    <div className="max-h-32 overflow-y-auto pr-2">
-                      <p className="whitespace-pre-wrap text-xs leading-relaxed glass-text-muted">
-                        {selectedEvent.description}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* RSVP Stats - Compact */}
-                {(selectedEvent.rsvpCount || selectedEvent.waitListCount) && (
-                  <div className="grid grid-cols-2 gap-2.5">
-                    <Card className="border-border/50 bg-secondary/20">
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 glass-icon" />
-                          <div>
-                            <p className="text-[10px] glass-text-muted">Attending</p>
-                            <p className="text-lg font-bold leading-tight glass-text">
-                              {selectedEvent.rsvpCount || 0}
-                              {selectedEvent.rsvpTotal && (
-                                <span className="text-xs font-normal glass-text-muted">
-                                  {' '}/ {selectedEvent.rsvpTotal}
-                                </span>
-                              )}
+                  {/* Content - all sections compact and visible */}
+                  <div className="px-6 pb-5">
+                    <div className="space-y-4 pt-4">
+                      {/* Compact Info Grid */}
+                      <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+                        {/* Date & Time */}
+                        <div className="flex items-start gap-2.5">
+                          <Calendar className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium glass-text">{formatDate(selectedEvent.startsAt)}</p>
+                            <p className="mt-0.5 text-xs glass-text-muted">
+                              {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
                             </p>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
 
-                    {selectedEvent.waitListCount && selectedEvent.waitListCount > 0 ? (
-                      <Card className="border-border/50 bg-secondary/20">
-                        <CardContent className="p-3">
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 glass-icon" />
-                            <div>
-                              <p className="text-[10px] glass-text-muted">Waitlist</p>
-                              <p className="text-lg font-bold leading-tight glass-text">{selectedEvent.waitListCount}</p>
+                        {/* Venue & Location */}
+                        {selectedEvent.venueName && (
+                          <div className="flex items-start gap-2.5">
+                            <MapPin className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium glass-text">{selectedEvent.venueName}</p>
+                              {selectedEvent.venueAddress && (
+                                <>
+                                  <p className="mt-0.5 text-xs glass-text-muted">
+                                    {selectedEvent.venueAddress}
+                                  </p>
+                                  <Button
+                                    variant="link"
+                                    size="sm"
+                                    className="mt-0.5 h-auto p-0 text-xs text-blue-400 hover:text-blue-300 dark:text-blue-300 dark:hover:text-blue-200"
+                                    asChild
+                                  >
+                                    <a
+                                      href={getDirectionsUrl()}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <Navigation className="mr-1 h-3 w-3" />
+                            Get Directions
+                                    </a>
+                                  </Button>
+                                </>
+                              )}
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ) : null}
-                  </div>
-                )}
+                        )}
 
-                {/* Metadata: Price, Type, Source */}
-                {(selectedEvent.price || selectedEvent.eventType || selectedEvent.source) && (
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {selectedEvent.price && (
-                      <Badge className="border-emerald-400/30 bg-emerald-500/20 text-[10px] text-emerald-200">
-                        {selectedEvent.price}
-                      </Badge>
-                    )}
-                    {selectedEvent.eventType && (
-                      <Badge className="border-border/50 bg-secondary/50 text-[10px]">
-                        {selectedEvent.eventType}
-                      </Badge>
-                    )}
-                    {selectedEvent.source && (
-                      <Badge className="border-border/50 bg-secondary/50 text-[10px] text-muted-foreground">
+                        {/* Organizer */}
+                        {selectedEvent.organizer && (
+                          <div className="flex items-start gap-2.5">
+                            <User className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs glass-text-muted">Organized by</p>
+                              <p className="mt-0.5 font-medium glass-text">{selectedEvent.organizer}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Description - Only this scrolls */}
+                      {selectedEvent.description && (
+                        <div>
+                          <h3 className="mb-2 text-sm font-semibold glass-text">About this event</h3>
+                          <div className="max-h-32 overflow-y-auto pr-2">
+                            <p className="whitespace-pre-wrap text-xs leading-relaxed glass-text-muted">
+                              {selectedEvent.description}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* RSVP Stats - Compact */}
+                      {(selectedEvent.rsvpCount || selectedEvent.waitListCount) && (
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <Card className="border-border/50 bg-secondary/20">
+                            <CardContent className="p-3">
+                              <div className="flex items-center gap-2">
+                                <Users className="h-4 w-4 glass-icon" />
+                                <div>
+                                  <p className="text-[10px] glass-text-muted">Attending</p>
+                                  <p className="text-lg font-bold leading-tight glass-text">
+                                    {selectedEvent.rsvpCount || 0}
+                                    {selectedEvent.rsvpTotal && (
+                                      <span className="text-xs font-normal glass-text-muted">
+                                        {' '}/ {selectedEvent.rsvpTotal}
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {selectedEvent.waitListCount && selectedEvent.waitListCount > 0 ? (
+                            <Card className="border-border/50 bg-secondary/20">
+                              <CardContent className="p-3">
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4 glass-icon" />
+                                  <div>
+                                    <p className="text-[10px] glass-text-muted">Waitlist</p>
+                                    <p className="text-lg font-bold leading-tight glass-text">{selectedEvent.waitListCount}</p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ) : null}
+                        </div>
+                      )}
+
+                      {/* Metadata: Price, Type, Source */}
+                      {(selectedEvent.price || selectedEvent.eventType || selectedEvent.source) && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {selectedEvent.price && (
+                            <Badge className="border-emerald-400/30 bg-emerald-500/20 text-[10px] text-emerald-200">
+                              {selectedEvent.price}
+                            </Badge>
+                          )}
+                          {selectedEvent.eventType && (
+                            <Badge className="border-border/50 bg-secondary/50 text-[10px]">
+                              {selectedEvent.eventType}
+                            </Badge>
+                          )}
+                          {selectedEvent.source && (
+                            <Badge className="border-border/50 bg-secondary/50 text-[10px] text-muted-foreground">
                     via {getSourceName(selectedEvent.source)}
-                      </Badge>
-                    )}
-                  </div>
-                )}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
 
-                {/* CTAs */}
-                <div className="flex gap-2.5 pt-1">
-                  {selectedEvent.eventUrl && (
-                    <Button
-                      asChild
-                      size="sm"
-                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
-                      <a
-                        href={selectedEvent.eventUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      {/* CTAs */}
+                      <div className="flex gap-2.5 pt-1">
+                        {selectedEvent.eventUrl && (
+                          <Button
+                            asChild
+                            size="sm"
+                            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
+                            <a
+                              href={selectedEvent.eventUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
                     View on {getSourceName(selectedEvent.source)}
-                        <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                      </a>
-                    </Button>
-                  )}
-                  {selectedEvent.ticketUrl && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                      className="border-border/50 glass-text hover:bg-secondary/50">
-                      <a
-                        href={selectedEvent.ticketUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                              <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                            </a>
+                          </Button>
+                        )}
+                        {selectedEvent.ticketUrl && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            className="border-border/50 glass-text hover:bg-secondary/50">
+                            <a
+                              href={selectedEvent.ticketUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
                     Get Tickets
-                        <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </>
+                              <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
