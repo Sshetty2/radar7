@@ -8,7 +8,6 @@ import { toggleSearchMode, selectSearchMode } from '@/lib/store/slices/uiSlice';
 import { setMapView } from '@/lib/store/slices/mapSlice';
 import { Search, X, Loader2, MapPin, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
-import { GLASS_EFFECT_STYLE } from '@/lib/constants/styles';
 
 export function SearchBox () {
   const [query, setQuery] = useState('');
@@ -87,21 +86,20 @@ export function SearchBox () {
     <div className="absolute bottom-32 left-0 right-0 z-10 flex items-center justify-center px-4 md:bottom-8">
       {/* Search box */}
       <div
-        className="w-full max-w-md p-3"
-        style={GLASS_EFFECT_STYLE}>
+        className="glass w-full max-w-md rounded-xl p-3">
         <div className="flex items-center gap-2">
           {/* Search mode toggle */}
           <Button
             variant={searchMode === 'address' ? 'default' : 'outline'}
             size="icon"
             onClick={() => dispatch(toggleSearchMode())}
-            className="h-10 w-10 shrink-0"
+            className="h-10 w-10 cursor-pointer shrink-0 hover:scale-105 transition-all duration-200"
             title={searchMode === 'address' ? 'Switch to Natural Language' : 'Switch to Address Search'}
           >
             {searchMode === 'address' ? (
-              <MapPin className="h-4 w-4" />
+              <MapPin className="h-4 w-4 transition-all duration-200" />
             ) : (
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-4 w-4 transition-all duration-200" />
             )}
           </Button>
 
@@ -120,7 +118,7 @@ export function SearchBox () {
             {query && !isLoading && (
               <button
                 onClick={() => setQuery('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-sm p-0.5 text-muted-foreground hover:text-foreground hover:bg-secondary/50 hover:scale-110 dark:hover:bg-white/10 transition-all duration-200"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -137,14 +135,14 @@ export function SearchBox () {
             onClick={handleSearch}
             size="icon"
             disabled={isLoading || !query.trim()}
-            className="h-10 w-10 shrink-0"
+            className="h-10 w-10 cursor-pointer shrink-0 hover:scale-105 transition-all duration-200"
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-4 w-4 transition-all duration-200" />
           </Button>
         </div>
 
         {/* Mode indicator */}
-        <div className="mt-2 text-center text-xs text-gray-400">
+        <div className="mt-2 text-center text-xs text-muted-foreground">
           {searchMode === 'address' ? (
             <span>🗺️ Address Search Mode</span>
           ) : (

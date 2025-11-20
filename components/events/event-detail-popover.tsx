@@ -19,7 +19,6 @@ import {
   Minimize2,
   Maximize2
 } from 'lucide-react';
-import { GLASS_EFFECT_STYLE } from '@/lib/constants/styles';
 
 export function EventDetailPopover () {
   const dispatch = useAppDispatch();
@@ -35,8 +34,11 @@ export function EventDetailPopover () {
     setIsMinimized(false); // Reset to full view when closing
   };
 
-  const toggleMinimize = () => {
+  const toggleMinimize = (e: React.MouseEvent<HTMLButtonElement>) => {
     setIsMinimized(!isMinimized);
+
+    // Remove focus from the button to prevent focus ring
+    e.currentTarget.blur();
   };
 
   if (!selectedEvent) {
@@ -157,7 +159,7 @@ export function EventDetailPopover () {
       {/* Modal Content - switches between full and minimized views */}
       <div
         className={cn(
-          'fixed z-[60] overflow-hidden border-[rgba(35,34,34,0.59)] bg-transparent p-0 text-white transition-all duration-300 pointer-events-auto',
+          'glass fixed z-[60] overflow-hidden bg-transparent p-0 glass-text transition-all duration-300 pointer-events-auto',
 
           // View-specific positioning and sizing
           isMinimized ? [
@@ -171,7 +173,6 @@ export function EventDetailPopover () {
             'sm:rounded-[12px]'
           ]
         )}
-        style={GLASS_EFFECT_STYLE}
         data-state={selectedEventId ? 'open' : 'closed'}
         onClick={e => e.stopPropagation()}
       >
@@ -181,7 +182,7 @@ export function EventDetailPopover () {
             {/* Minimize toggle - top left */}
             <button
               onClick={toggleMinimize}
-              className="absolute left-3 top-3 z-10 rounded-sm text-white opacity-90 transition-opacity hover:opacity-100 focus:outline-none"
+              className="glass absolute left-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
               title="Maximize"
             >
               <Maximize2 className="h-4 w-4" />
@@ -190,7 +191,7 @@ export function EventDetailPopover () {
             {/* Close button - top right */}
             <button
               onClick={handleClose}
-              className="absolute right-3 top-3 z-10 rounded-sm text-white opacity-90 transition-opacity hover:opacity-100 focus:outline-none"
+              className="glass absolute right-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
               title="Close"
             >
               <X className="h-4 w-4" />
@@ -198,26 +199,26 @@ export function EventDetailPopover () {
             </button>
           </>
         ) : (
-          <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-            {/* Minimize toggle */}
+          <>
+            {/* Minimize button - left side */}
             <button
               onClick={toggleMinimize}
-              className="rounded-sm text-white opacity-90 transition-opacity hover:opacity-100 focus:outline-none"
+              className="glass absolute left-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
               title="Minimize"
             >
               <Minimize2 className="h-4 w-4" />
               <span className="sr-only">Minimize</span>
             </button>
-            {/* Close button */}
+            {/* Close button - right side */}
             <button
               onClick={handleClose}
-              className="rounded-sm text-white opacity-90 transition-opacity hover:opacity-100 focus:outline-none"
+              className="glass absolute right-3 top-3 z-10 rounded-xl p-2 glass-text hover:bg-secondary/50 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
               title="Close"
             >
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </button>
-          </div>
+          </>
         )}
 
         {/* MINIMIZED VIEW - Compact card with photo on right side */}
@@ -227,31 +228,31 @@ export function EventDetailPopover () {
             <div className="flex w-[62%] flex-col p-6">
               {/* Title and category - with left padding for minimize button */}
               <div className="mb-3 pl-8">
-                <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-white">
+                <h3 className="line-clamp-2 text-sm font-semibold leading-tight glass-text">
                   {selectedEvent.title}
                 </h3>
 
                 {selectedEvent.category && (
-                  <div className="mt-1.5 w-fit rounded-full border border-white/60 bg-white/35 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white shadow-lg">
+                  <div className="mt-1.5 w-fit rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider glass-text shadow-lg">
                     {selectedEvent.category}
                   </div>
                 )}
               </div>
 
               {/* Event details - Date/Time and Venue side by side */}
-              <div className="flex gap-3 text-xs text-gray-300">
+              <div className="flex gap-3 text-xs glass-text-muted">
                 {/* Date & Time - Left side */}
                 <div className="flex flex-1 items-start gap-1.5">
-                  <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
+                  <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 glass-icon" />
                   <div className="min-w-0">
-                    <p className="text-[11px] font-medium text-white">
+                    <p className="text-[11px] font-medium glass-text">
                       {new Date(selectedEvent.startsAt || '').toLocaleDateString('en-US', {
                         weekday: 'short',
                         month  : 'short',
                         day    : 'numeric'
                       })}
                     </p>
-                    <p className="text-[10px] text-gray-400">
+                    <p className="text-[10px] glass-text-muted">
                       {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
                     </p>
                   </div>
@@ -260,11 +261,11 @@ export function EventDetailPopover () {
                 {/* Venue - Right side */}
                 {selectedEvent.venueName && (
                   <div className="flex flex-1 items-start gap-1.5">
-                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 glass-icon" />
                     <div className="min-w-0">
-                      <p className="truncate text-[11px] font-medium text-white">{selectedEvent.venueName}</p>
+                      <p className="truncate text-[11px] font-medium glass-text">{selectedEvent.venueName}</p>
                       {selectedEvent.venueAddress && (
-                        <p className="truncate text-[10px] text-gray-400">
+                        <p className="truncate text-[10px] glass-text-muted">
                           {selectedEvent.venueAddress}
                         </p>
                       )}
@@ -276,7 +277,7 @@ export function EventDetailPopover () {
               {/* Description - scrollable */}
               {selectedEvent.description && (
                 <div className="mt-2 flex-1 overflow-y-auto pr-2">
-                  <p className="text-[11px] leading-relaxed text-gray-300">
+                  <p className="text-[11px] leading-relaxed glass-text-muted">
                     {selectedEvent.description}
                   </p>
                 </div>
@@ -286,10 +287,10 @@ export function EventDetailPopover () {
               <div className="mt-auto flex items-center gap-3 pt-2">
                 {selectedEvent.rsvpCount && selectedEvent.rsvpCount > 0 && (
                   <div className="flex items-center gap-1.5">
-                    <Users className="h-3.5 w-3.5 shrink-0 text-gray-400" />
+                    <Users className="h-3.5 w-3.5 shrink-0 glass-icon" />
                     <span className="text-[11px]">
-                      <span className="font-semibold text-white">{selectedEvent.rsvpCount}</span>
-                      {selectedEvent.rsvpTotal && <span className="text-gray-400"> / {selectedEvent.rsvpTotal}</span>}
+                      <span className="font-semibold glass-text">{selectedEvent.rsvpCount}</span>
+                      {selectedEvent.rsvpTotal && <span className="glass-text-muted"> / {selectedEvent.rsvpTotal}</span>}
                     </span>
                   </div>
                 )}
@@ -330,12 +331,12 @@ export function EventDetailPopover () {
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 <div className="absolute inset-x-6 bottom-3 flex items-end justify-between gap-4">
                   <div className="max-w-[70%]">
-                    <h2 className="text-xl font-semibold leading-tight text-white">
+                    <h2 className="text-xl font-semibold leading-tight glass-text">
                       {selectedEvent.title}
                     </h2>
                   </div>
                   {selectedEvent.category && (
-                    <div className="shrink-0 rounded-full border border-white/60 bg-white/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
+                    <div className="shrink-0 rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider glass-text shadow-lg">
                       {selectedEvent.category}
                     </div>
                   )}
@@ -343,11 +344,11 @@ export function EventDetailPopover () {
               </div>
             ) : (
               <div className="px-6 pt-4">
-                <h2 className="text-xl font-semibold leading-tight text-white">
+                <h2 className="text-xl font-semibold leading-tight glass-text">
                   {selectedEvent.title}
                 </h2>
                 {selectedEvent.category && (
-                  <div className="mt-2 w-fit rounded-full border border-white/60 bg-white/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
+                  <div className="mt-2 w-fit rounded-full border border-border/60 bg-secondary/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider glass-text shadow-lg">
                     {selectedEvent.category}
                   </div>
                 )}
@@ -361,10 +362,10 @@ export function EventDetailPopover () {
                 <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
                   {/* Date & Time */}
                   <div className="flex items-start gap-2.5">
-                    <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                    <Calendar className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-white">{formatDate(selectedEvent.startsAt)}</p>
-                      <p className="mt-0.5 text-xs text-gray-400">
+                      <p className="font-medium glass-text">{formatDate(selectedEvent.startsAt)}</p>
+                      <p className="mt-0.5 text-xs glass-text-muted">
                         {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
                       </p>
                     </div>
@@ -373,18 +374,18 @@ export function EventDetailPopover () {
                   {/* Venue & Location */}
                   {selectedEvent.venueName && (
                     <div className="flex items-start gap-2.5">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-white">{selectedEvent.venueName}</p>
+                        <p className="font-medium glass-text">{selectedEvent.venueName}</p>
                         {selectedEvent.venueAddress && (
                           <>
-                            <p className="mt-0.5 text-xs text-gray-400">
+                            <p className="mt-0.5 text-xs glass-text-muted">
                               {selectedEvent.venueAddress}
                             </p>
                             <Button
                               variant="link"
                               size="sm"
-                              className="mt-0.5 h-auto p-0 text-xs text-blue-400 hover:text-blue-300"
+                              className="mt-0.5 h-auto p-0 text-xs text-blue-400 hover:text-blue-300 dark:text-blue-300 dark:hover:text-blue-200"
                               asChild
                             >
                               <a
@@ -405,10 +406,10 @@ export function EventDetailPopover () {
                   {/* Organizer */}
                   {selectedEvent.organizer && (
                     <div className="flex items-start gap-2.5">
-                      <User className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                      <User className="mt-0.5 h-4 w-4 shrink-0 glass-icon" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs text-gray-400">Organized by</p>
-                        <p className="mt-0.5 font-medium text-white">{selectedEvent.organizer}</p>
+                        <p className="text-xs glass-text-muted">Organized by</p>
+                        <p className="mt-0.5 font-medium glass-text">{selectedEvent.organizer}</p>
                       </div>
                     </div>
                   )}
@@ -417,9 +418,9 @@ export function EventDetailPopover () {
                 {/* Description - Only this scrolls */}
                 {selectedEvent.description && (
                   <div>
-                    <h3 className="mb-2 text-sm font-semibold text-white">About this event</h3>
+                    <h3 className="mb-2 text-sm font-semibold glass-text">About this event</h3>
                     <div className="max-h-32 overflow-y-auto pr-2">
-                      <p className="whitespace-pre-wrap text-xs leading-relaxed text-gray-300">
+                      <p className="whitespace-pre-wrap text-xs leading-relaxed glass-text-muted">
                         {selectedEvent.description}
                       </p>
                     </div>
@@ -429,16 +430,16 @@ export function EventDetailPopover () {
                 {/* RSVP Stats - Compact */}
                 {(selectedEvent.rsvpCount || selectedEvent.waitListCount) && (
                   <div className="grid grid-cols-2 gap-2.5">
-                    <Card className="border-white/10 bg-white/5">
+                    <Card className="border-border/50 bg-secondary/20">
                       <CardContent className="p-3">
                         <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-gray-400" />
+                          <Users className="h-4 w-4 glass-icon" />
                           <div>
-                            <p className="text-[10px] text-gray-400">Attending</p>
-                            <p className="text-lg font-bold leading-tight text-white">
+                            <p className="text-[10px] glass-text-muted">Attending</p>
+                            <p className="text-lg font-bold leading-tight glass-text">
                               {selectedEvent.rsvpCount || 0}
                               {selectedEvent.rsvpTotal && (
-                                <span className="text-xs font-normal text-gray-400">
+                                <span className="text-xs font-normal glass-text-muted">
                                   {' '}/ {selectedEvent.rsvpTotal}
                                 </span>
                               )}
@@ -449,13 +450,13 @@ export function EventDetailPopover () {
                     </Card>
 
                     {selectedEvent.waitListCount && selectedEvent.waitListCount > 0 ? (
-                      <Card className="border-white/10 bg-white/5">
+                      <Card className="border-border/50 bg-secondary/20">
                         <CardContent className="p-3">
                           <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-gray-400" />
+                            <Clock className="h-4 w-4 glass-icon" />
                             <div>
-                              <p className="text-[10px] text-gray-400">Waitlist</p>
-                              <p className="text-lg font-bold leading-tight text-white">{selectedEvent.waitListCount}</p>
+                              <p className="text-[10px] glass-text-muted">Waitlist</p>
+                              <p className="text-lg font-bold leading-tight glass-text">{selectedEvent.waitListCount}</p>
                             </div>
                           </div>
                         </CardContent>
@@ -468,17 +469,17 @@ export function EventDetailPopover () {
                 {(selectedEvent.price || selectedEvent.eventType || selectedEvent.source) && (
                   <div className="flex flex-wrap items-center gap-1.5">
                     {selectedEvent.price && (
-                      <Badge className="border-white/20 bg-emerald-500/20 text-[10px] text-emerald-200">
+                      <Badge className="border-emerald-400/30 bg-emerald-500/20 text-[10px] text-emerald-200">
                         {selectedEvent.price}
                       </Badge>
                     )}
                     {selectedEvent.eventType && (
-                      <Badge className="border-white/20 bg-white/10 text-[10px] text-gray-300">
+                      <Badge className="border-border/50 bg-secondary/50 text-[10px]">
                         {selectedEvent.eventType}
                       </Badge>
                     )}
                     {selectedEvent.source && (
-                      <Badge className="border-white/20 bg-white/10 text-[10px] text-gray-400">
+                      <Badge className="border-border/50 bg-secondary/50 text-[10px] text-muted-foreground">
                     via {getSourceName(selectedEvent.source)}
                       </Badge>
                     )}
@@ -491,7 +492,7 @@ export function EventDetailPopover () {
                     <Button
                       asChild
                       size="sm"
-                      className="flex-1 bg-white text-black hover:bg-gray-200">
+                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90">
                       <a
                         href={selectedEvent.eventUrl}
                         target="_blank"
@@ -507,7 +508,7 @@ export function EventDetailPopover () {
                       variant="outline"
                       size="sm"
                       asChild
-                      className="border-white/30 text-white hover:bg-white/10">
+                      className="border-border/50 glass-text hover:bg-secondary/50">
                       <a
                         href={selectedEvent.ticketUrl}
                         target="_blank"

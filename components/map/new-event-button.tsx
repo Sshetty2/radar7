@@ -10,7 +10,6 @@ import {
   DialogDescription
 } from '@/components/ui/dialog';
 import { PlusIcon } from '@/components/icons';
-import { GLASS_EFFECT_STYLE } from '@/lib/constants/styles';
 
 export function NewEventButton () {
   const [newEventModalOpen, setNewEventModalOpen] = useState(false);
@@ -22,8 +21,7 @@ export function NewEventButton () {
         <Button
           variant="outline"
           size="icon"
-          className="h-11 w-11 shrink-0 rounded-xl border-[rgba(35,34,34,0.59)] text-white hover:bg-white/10"
-          style={GLASS_EFFECT_STYLE}
+          className="glass h-11 w-11 cursor-pointer shrink-0 rounded-xl glass-text hover:bg-secondary/50 hover:scale-105 dark:hover:bg-white/15 transition-all duration-200"
           onClick={() => setNewEventModalOpen(true)}
         >
           <PlusIcon size={18} />
@@ -35,20 +33,19 @@ export function NewEventButton () {
         open={newEventModalOpen}
         onOpenChange={setNewEventModalOpen}>
         <DialogContent
-          className="border-[rgba(35,34,34,0.59)] text-white data-[state=open]:slide-in-from-bottom-right data-[state=closed]:slide-out-to-bottom-right data-[state=open]:animate-in data-[state=closed]:animate-out"
-          style={GLASS_EFFECT_STYLE}
+          className="glass glass-text data-[state=open]:slide-in-from-bottom-right data-[state=closed]:slide-out-to-bottom-right data-[state=open]:animate-in data-[state=closed]:animate-out"
         >
           <DialogHeader>
-            <DialogTitle className="text-white">Create New Event</DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogTitle className="glass-text">Create New Event</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Event creation is coming soon! This will be a premium feature that allows you to create and promote your own events on Radar7.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-sm text-gray-300">
+            <p className="text-sm glass-text-muted">
               Stay tuned for updates. This feature will include:
             </p>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-gray-400">
+            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-muted-foreground">
               <li>Custom event creation</li>
               <li>Location selection</li>
               <li>Image uploads</li>

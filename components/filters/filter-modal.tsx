@@ -35,7 +35,6 @@ import {
   setDateRange
 } from '@/lib/store/slices/filtersSlice';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { GLASS_EFFECT_STYLE } from '@/lib/constants/styles';
 
 const CATEGORIES = [
   'Social Activities',
@@ -87,21 +86,20 @@ export function FilterModal () {
       open={filterModalOpen}
       onOpenChange={handleClose}>
       <DialogContent
-        className="max-h-[90vh] max-w-2xl border-[rgba(35,34,34,0.59)] text-white"
-        style={GLASS_EFFECT_STYLE}
+        className="glass max-h-[90vh] max-w-2xl glass-text"
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-white">
+          <DialogTitle className="flex items-center gap-2 glass-text">
             Filter Events
             {activeFilterCount > 0 && (
               <Badge
                 variant="secondary"
-                className="border-white/20 bg-white/10 text-white">
+                className="border-border/50 bg-secondary/50">
                 {activeFilterCount} active
               </Badge>
             )}
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Customize your event discovery experience
           </DialogDescription>
         </DialogHeader>

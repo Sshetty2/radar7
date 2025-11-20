@@ -14,7 +14,6 @@ import type { Event } from '@/lib/db/crawler-schema';
 import { EventCard } from './event-card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { GLASS_EFFECT_STYLE } from '@/lib/constants/styles';
 
 interface EventSidebarProps {
   events: Partial<Event>[];
@@ -34,42 +33,42 @@ export function EventSidebar ({ events }: EventSidebarProps) {
         side="right"
         hideOverlay
         onInteractOutside={event => event.preventDefault()}
-        className="z-[70] w-full border-[rgba(35,34,34,0.59)] text-white sm:bottom-6 sm:right-20 sm:top-6 sm:h-auto sm:max-h-[calc(100vh-3rem)] sm:w-[26rem] sm:max-w-[26rem] sm:rounded-[12px] sm:border-white/20 sm:shadow-2xl"
-        style={GLASS_EFFECT_STYLE}
+        className="glass z-[70] w-full sm:bottom-6 sm:right-20 sm:top-6 sm:h-auto sm:max-h-[calc(100vh-3rem)] sm:w-[26rem] sm:max-w-[26rem] sm:rounded-[12px] sm:shadow-2xl"
       >
         <SheetHeader>
-          <SheetTitle className="text-white">Events in New York</SheetTitle>
-          <SheetDescription className="flex items-center gap-2 text-gray-400">
+          <SheetTitle className="glass-text">Events in New York</SheetTitle>
+          <SheetDescription className="flex items-center gap-2 text-muted-foreground">
             <span>{events.length} events found</span>
             {activeFilterCount > 0 && (
               <Badge
                 variant="secondary"
-                className="border-white/20 bg-white/10 text-xs text-white">
+                className="border-border/50 bg-secondary/50 text-xs">
                 {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active
               </Badge>
             )}
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="mt-6 h-[calc(100vh-8rem)]">
-          <div className="space-y-4 pr-4">
-            {events.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <p className="text-gray-400">
+        <div
+          className="mt-6 space-y-3 overflow-auto pr-2 sm:max-h-[calc(100vh-14rem)]"
+        >
+          {events.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <p className="text-muted-foreground">
                   No events found matching your filters.
-                </p>
-                <p className="mt-2 text-sm text-gray-500">
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground/70">
                   Try adjusting your search criteria or filters.
-                </p>
-              </div>
-            ) : events.map(event => (
-              <EventCard
-                key={event.id}
-                event={event} />
-            ))
-            }
-          </div>
-        </ScrollArea>
+              </p>
+            </div>
+          ) : events.map(event => (
+
+            <EventCard
+              event={event}
+              key={event.id} />
+          ))
+          }
+        </div>
       </SheetContent>
     </Sheet>
   );

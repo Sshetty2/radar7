@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { toggleSidebar, selectSidebarOpen } from '@/lib/store/slices/uiSlice';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { GLASS_EFFECT_STYLE } from '@/lib/constants/styles';
 import { cn } from '@/lib/utils';
 
 export function SidebarToggle () {
@@ -24,13 +23,12 @@ export function SidebarToggle () {
         variant="outline"
         aria-pressed={sidebarOpen}
         aria-label={sidebarOpen ? 'Close event sidebar' : 'Open event sidebar'}
-        className="h-11 w-11 rounded-xl border-[rgba(35,34,34,0.59)] text-white hover:bg-white/10"
-        style={GLASS_EFFECT_STYLE}
+        className="glass h-11 w-11 cursor-pointer rounded-xl glass-text hover:bg-secondary/50 hover:scale-105 dark:hover:bg-white/15 transition-all duration-200"
       >
         {sidebarOpen ? (
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-5 w-5 transition-all duration-200" />
         ) : (
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-5 w-5 transition-all duration-200" />
         )}
       </Button>
     </div>

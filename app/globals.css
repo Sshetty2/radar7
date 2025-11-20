@@ -99,6 +99,13 @@
   --sidebar-accent-foreground: 240 5.9% 10%;
   --sidebar-border: 220 13% 91%;
   --sidebar-ring: 217.2 91.2% 59.8%;
+
+  /* Glass morphism variables for light theme */
+  --glass-bg: rgb(255 255 255 / 75%);
+  --glass-border: rgb(200 200 200 / 30%);
+  --glass-text: 240 10% 3.9%;
+  --glass-text-muted: 240 3.8% 46.1%;
+  --glass-icon: 240 5% 35%;
 }
 
 .dark {
@@ -134,6 +141,13 @@
   --sidebar-accent-foreground: 240 4.8% 95.9%;
   --sidebar-border: 240 3.7% 15.9%;
   --sidebar-ring: 217.2 91.2% 59.8%;
+
+  /* Glass morphism variables for dark theme */
+  --glass-bg: rgb(0 0 0 / 75%);
+  --glass-border: rgb(133 133 133 / 59%);
+  --glass-text: 0 0% 100%;
+  --glass-text-muted: 240 5% 75%;
+  --glass-icon: 0 0% 90%;
 }
 
 * {
@@ -234,4 +248,63 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary));
+}
+
+/* Glass morphism utility classes */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(2.5px);
+  backdrop-filter: blur(2.5px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
+}
+
+.glass-text {
+  color: hsl(var(--glass-text));
+}
+
+.glass-text-muted {
+  color: hsl(var(--glass-text-muted));
+}
+
+.glass-icon {
+  color: hsl(var(--glass-icon));
+}
+
+/* Icon button hover effects */
+.glass-icon-btn {
+  @apply cursor-pointer transition-all duration-200;
+}
+
+.glass-icon-btn:hover {
+  @apply bg-secondary/50 scale-105;
+
+  color: hsl(var(--foreground));
+}
+
+.dark .glass-icon-btn:hover {
+  @apply bg-white/15;
+
+  color: hsl(0deg 0% 100%);
+}
+
+.glass-icon-btn svg {
+  @apply transition-all duration-200;
+}
+
+.glass-icon-btn:hover svg {
+  filter: brightness(1.4);
+}
+
+.dark .glass-icon-btn:hover svg {
+  filter: brightness(1.8) drop-shadow(0 0 12px rgb(255 255 255 / 80%)) drop-shadow(0 0 6px rgb(255 255 255 / 60%));
+}
+
+/* Button icon hover effects - for buttons with icons */
+button:hover svg {
+  @apply transition-all duration-200;
+}
+
+.dark button:hover svg {
+  filter: brightness(1.6) drop-shadow(0 0 10px rgb(255 255 255 / 70%)) drop-shadow(0 0 4px rgb(255 255 255 / 50%));
 }
