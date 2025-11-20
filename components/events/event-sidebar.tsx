@@ -13,7 +13,6 @@ import { selectActiveFilterCount } from '@/lib/store/slices/filtersSlice';
 import type { Event } from '@/lib/db/crawler-schema';
 import { EventCard } from './event-card';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface EventSidebarProps {
   events: Partial<Event>[];
@@ -33,7 +32,7 @@ export function EventSidebar ({ events }: EventSidebarProps) {
         side="right"
         hideOverlay
         onInteractOutside={event => event.preventDefault()}
-        className="glass z-[70] w-full sm:bottom-6 sm:right-20 sm:top-6 sm:h-auto sm:max-h-[calc(100vh-3rem)] sm:w-[26rem] sm:max-w-[26rem] sm:rounded-[12px] sm:shadow-2xl"
+        className="glass z-[70] w-full sm:bottom-6 sm:right-20 sm:top-6 sm:h-auto sm:max-h-[calc(100vh-3rem)] sm:w-[15rem] sm:max-w-[15rem] md:w-[17rem] md:max-w-[17rem] lg:w-[20rem] lg:max-w-[20rem] xl:w-[24rem] xl:max-w-[24rem] 2xl:w-[26rem] 2xl:max-w-[26rem] sm:rounded-[12px] sm:shadow-2xl"
       >
         <SheetHeader>
           <SheetTitle className="glass-text">Events in New York</SheetTitle>

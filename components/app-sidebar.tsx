@@ -4,6 +4,7 @@ import type { User } from 'next-auth';
 import { useRouter } from 'next/navigation';
 
 import { PlusIcon } from '@/components/icons';
+import { Radar7Logo } from '@/components/logo/radar7-logo';
 import { SidebarHistory } from '@/components/sidebar-history';
 import { SidebarUserNav } from '@/components/sidebar-user-nav';
 import { Button } from '@/components/ui/button';
@@ -32,11 +33,13 @@ export function AppSidebar ({ user }: { user: User | undefined }) {
               onClick={() => {
                 setOpenMobile(false);
               }}
-              className="flex flex-row items-center gap-3"
+              className="flex flex-row items-center gap-3 group"
             >
-              <span className="cursor-pointer rounded-md px-2 text-lg font-semibold hover:bg-muted">
-                Radar7
-              </span>
+              <div className="cursor-pointer rounded-md px-2 py-1 transition-all hover:bg-muted/50">
+                <Radar7Logo
+                  variant="compact"
+                  className="w-40 transition-transform group-hover:scale-105" />
+              </div>
             </Link>
             <Tooltip>
               <TooltipTrigger asChild>

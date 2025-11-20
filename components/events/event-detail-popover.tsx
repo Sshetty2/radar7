@@ -163,13 +163,13 @@ export function EventDetailPopover () {
 
           // View-specific positioning and sizing
           isMinimized ? [
-            // Minimized: Below logo area, more to the right, wider and shorter
-            'left-[8vw] top-[12vh] w-[clamp(520px,38vw,640px)] h-[clamp(220px,28vh,300px)]',
+            // Minimized: Below logo area, responsive sizing for different viewports
+            'left-[8vw] top-[12vh] w-[clamp(380px,36vw,640px)] h-[clamp(200px,28vh,320px)]',
             'sm:rounded-[12px] shadow-2xl'
           ] : [
-            // Full: Center screen, larger size
-            'top-[45%] -translate-y-1/2 w-full max-w-2xl',
-            sidebarOpen ? 'left-1/3 -translate-x-1/3' : 'left-1/2 -translate-x-1/2',
+            // Full: Center screen, extreme responsive sizing to ensure sidebar toggle is always visible
+            'top-[45%] -translate-y-1/2 w-[calc(100%-2rem)] max-w-[280px] sm:max-w-[320px] md:max-w-[380px] lg:max-w-[420px] xl:max-w-[520px] 2xl:max-w-2xl px-4 sm:px-0',
+            sidebarOpen ? '2xl:left-[42%] 2xl:-translate-x-[42%] xl:left-[35%] xl:-translate-x-[35%] lg:left-[28%] lg:-translate-x-[28%] md:left-[25%] md:-translate-x-[25%] sm:left-[22%] sm:-translate-x-[22%] left-1/2 -translate-x-1/2' : 'left-1/2 -translate-x-1/2',
             'sm:rounded-[12px]'
           ]
         )}
@@ -225,9 +225,9 @@ export function EventDetailPopover () {
         {isMinimized ? (
           <div className="flex h-full overflow-hidden">
             {/* Left side - Event info (62%) */}
-            <div className="flex w-[62%] flex-col p-6">
+            <div className="flex w-[62%] flex-col p-4 md:p-6">
               {/* Title and category - with left padding for minimize button */}
-              <div className="mb-3 pl-8">
+              <div className="mb-2 pl-8">
                 <h3 className="line-clamp-2 text-sm font-semibold leading-tight glass-text">
                   {selectedEvent.title}
                 </h3>
@@ -239,12 +239,12 @@ export function EventDetailPopover () {
                 )}
               </div>
 
-              {/* Event details - Date/Time and Venue side by side */}
-              <div className="flex gap-3 text-xs glass-text-muted">
-                {/* Date & Time - Left side */}
-                <div className="flex flex-1 items-start gap-1.5">
+              {/* Event details - Stack vertically on small screens, side by side on larger */}
+              <div className="flex flex-col gap-1.5 text-xs glass-text-muted md:flex-row md:gap-3">
+                {/* Date & Time */}
+                <div className="flex items-start gap-1.5">
                   <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 glass-icon" />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-[11px] font-medium glass-text">
                       {new Date(selectedEvent.startsAt || '').toLocaleDateString('en-US', {
                         weekday: 'short',
@@ -258,11 +258,11 @@ export function EventDetailPopover () {
                   </div>
                 </div>
 
-                {/* Venue - Right side */}
+                {/* Venue */}
                 {selectedEvent.venueName && (
-                  <div className="flex flex-1 items-start gap-1.5">
+                  <div className="flex items-start gap-1.5">
                     <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 glass-icon" />
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="truncate text-[11px] font-medium glass-text">{selectedEvent.venueName}</p>
                       {selectedEvent.venueAddress && (
                         <p className="truncate text-[10px] glass-text-muted">
@@ -276,15 +276,15 @@ export function EventDetailPopover () {
 
               {/* Description - scrollable */}
               {selectedEvent.description && (
-                <div className="mt-2 flex-1 overflow-y-auto pr-2">
-                  <p className="text-[11px] leading-relaxed glass-text-muted">
+                <div className="mt-1.5 flex-1 overflow-y-auto pr-2">
+                  <p className="text-[10px] leading-relaxed glass-text-muted md:text-[11px]">
                     {selectedEvent.description}
                   </p>
                 </div>
               )}
 
               {/* RSVP & Price - inline at the bottom */}
-              <div className="mt-auto flex items-center gap-3 pt-2">
+              <div className="mt-auto flex items-center gap-2 pt-1.5 md:gap-3 md:pt-2">
                 {selectedEvent.rsvpCount && selectedEvent.rsvpCount > 0 && (
                   <div className="flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 shrink-0 glass-icon" />

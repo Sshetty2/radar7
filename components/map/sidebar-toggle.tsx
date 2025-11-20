@@ -14,7 +14,7 @@ export function SidebarToggle () {
     <div
       className={cn(
         'absolute right-4 top-1/2 z-[60] -translate-y-1/2 transition-[right] duration-300',
-        sidebarOpen && 'md:right-[calc(26rem+6.5rem)]'
+        sidebarOpen && 'sm:right-[calc(15rem+6.5rem)] md:right-[calc(17rem+6.5rem)] lg:right-[calc(20rem+6.5rem)] xl:right-[calc(24rem+6.5rem)] 2xl:right-[calc(26rem+6.5rem)]'
       )}
     >
       <Button

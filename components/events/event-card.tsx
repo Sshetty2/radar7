@@ -1,12 +1,11 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Event } from '@/lib/db/crawler-schema';
 import { useAppDispatch } from '@/lib/store/hooks';
 import { setSelectedEvent } from '@/lib/store/slices/uiSlice';
 import { Calendar, MapPin, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 interface EventCardProps {
   event: Partial<Event>;
@@ -19,9 +18,9 @@ export function EventCard ({ event }: EventCardProps) {
     if (!date) {
       return 'TBD';
     }
-    const d = new Date(date);
+    const eventDate = new Date(date);
 
-    return d.toLocaleDateString('en-US', {
+    return eventDate.toLocaleDateString('en-US', {
       weekday: 'short',
       month  : 'short',
       day    : 'numeric',
@@ -36,45 +35,47 @@ export function EventCard ({ event }: EventCardProps) {
 
   return (
     <Card
-      className="cursor-pointer overflow-hidden transition-shadow hover:shadow-lg"
+      className="cursor-pointer overflow-hidden transition-shadow hover:shadow-lg h-36"
       onClick={handleClick}
     >
-      <div className="flex gap-3 p-3">
-        {/* Left side: Content */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          {/* Category badge */}
-          {event.category && (
-            <Badge
-              variant="secondary"
-              className="mb-2 w-fit text-xs">
-              {event.category}
-            </Badge>
-          )}
+      <div className="flex h-full gap-0">
+        {/* Left side: Content - 62% width to match image */}
+        <div className="flex w-[62%] min-w-0 flex-col justify-between p-2.5 overflow-hidden">
+          <div className="overflow-hidden">
+            {/* Category badge */}
+            {event.category && (
+              <Badge
+                variant="secondary"
+                className="mb-1.5 w-fit text-[10px] py-0">
+                {event.category}
+              </Badge>
+            )}
 
-          {/* Title */}
-          <h3 className="mb-2 line-clamp-2 text-sm font-semibold">{event.title}</h3>
+            {/* Title */}
+            <h3 className="mb-1.5 line-clamp-2 text-[0.8125rem] font-semibold leading-snug">{event.title}</h3>
 
-          {/* Date */}
-          <div className="mb-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-            <Calendar className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{formatDate(event.startsAt)}</span>
+            {/* Date */}
+            <div className="mb-1 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <Calendar className="h-3 w-3 shrink-0" />
+              <span className="truncate">{formatDate(event.startsAt)}</span>
+            </div>
+
+            {/* Venue */}
+            {event.venueName && (
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <MapPin className="h-3 w-3 shrink-0" />
+                <span className="truncate">{event.venueName}</span>
+              </div>
+            )}
           </div>
 
-          {/* Venue */}
-          {event.venueName && (
-            <div className="mb-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{event.venueName}</span>
-            </div>
-          )}
-
           {/* RSVP info */}
-          <div className="mt-auto flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Users className="h-3.5 w-3.5" />
-              <span>
-                {event.rsvpCount || 0} attending
-                {event.waitListCount && event.waitListCount > 0 ? ` • ${event.waitListCount} waitlist` : ''}
+          <div className="flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Users className="h-3 w-3" />
+              <span className="truncate">
+                {event.rsvpCount || 0}
+                {event.waitListCount && event.waitListCount > 0 ? ` • ${event.waitListCount} wait` : ''}
               </span>
             </div>
 
@@ -82,16 +83,17 @@ export function EventCard ({ event }: EventCardProps) {
             {event.price && (
               <Badge
                 variant="outline"
-                className="ml-2 text-xs">
+                className="text-[10px] py-0">
                 {event.price}
               </Badge>
             )}
           </div>
         </div>
 
-        {/* Right side: Image */}
+        {/* Right side: Image - full height */}
         {event.imageUrl && (
-          <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-md bg-muted">
+          <div className="h-full w-[38%] shrink-0 overflow-hidden rounded-r-[calc(var(--radius)-1px)] bg-muted">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={event.imageUrl}
               alt={event.title || 'Event'}
