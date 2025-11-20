@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate Radar7 Icons</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin: 20px 0;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .info {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Radar7 Icon Generator</h1>
+  <div class="info">
+    <p>This page generates the icon files needed for your PWA.</p>
+    <p>Click each button below to download the corresponding icon file.</p>
+  </div>
+
+  <h2>192x192 Icon</h2>
+  <canvas id="canvas192" width="192" height="192"></canvas>
+  <br>
+  <button onclick="downloadIcon(192)">Download icon-192.png</button>
+
+  <h2>512x512 Icon</h2>
+  <canvas id="canvas512" width="512" height="512"></canvas>
+  <br>
+  <button onclick="downloadIcon(512)">Download icon-512.png</button>
+
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      const scale = size / 60;
+
+      // Black background
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, size, size);
+
+      // Helper to draw path
+      function drawPath(pathData, strokeStyle, lineWidth, opacity = 1) {
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = lineWidth * scale;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.globalAlpha = opacity;
+
+        ctx.beginPath();
+        const commands = pathData.split(/(?=[MLCmlc])/);
+        commands.forEach(cmd => {
+          const type = cmd[0];
+          const coords = cmd.slice(1).trim().split(/[\s,]+/).map(n => parseFloat(n) * scale);
+
+          if (type === 'M' || type === 'm') {
+            ctx.moveTo(coords[0], coords[1]);
+          } else if (type === 'L' || type === 'l') {
+            ctx.lineTo(coords[0], coords[1]);
+          } else if (type === 'C' || type === 'c') {
+            ctx.bezierCurveTo(coords[0], coords[1], coords[2], coords[3], coords[4], coords[5]);
+          }
+        });
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+
+      // R outline
+      drawPath('M 12 10 L 12 55 M 12 10 L 24 10 C 28 10 30 12 30 16 C 30 20 28 22 24 22 L 12 22 M 22 22 L 32 35', '#000000', 2.5, 0.4);
+      // R main
+      drawPath('M 12 10 L 12 55 M 12 10 L 24 10 C 28 10 30 12 30 16 C 30 20 28 22 24 22 L 12 22 M 22 22 L 32 35', '#ffffff', 1.5);
+
+      // 7 outline - more spacing
+      drawPath('M 38 10 L 53 10 L 41 55', '#000000', 2.5, 0.4);
+
+      // 7 with gradient (simulate with green) - more spacing
+      const gradient = ctx.createLinearGradient(38 * scale, 10 * scale, 53 * scale, 55 * scale);
+      gradient.addColorStop(0, '#10b981');
+      gradient.addColorStop(1, '#34d399');
+      drawPath('M 38 10 L 53 10 L 41 55', gradient, 1.5);
+    }
+
+    // Draw both canvases
+    drawIcon(document.getElementById('canvas192'), 192);
+    drawIcon(document.getElementById('canvas512'), 512);
+
+    function downloadIcon(size) {
+      const canvas = document.getElementById(`canvas${size}`);
+      const link = document.createElement('a');
+      link.download = `icon-${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>
