@@ -4,7 +4,7 @@
 
 export const GLASS_EFFECT_STYLE = {
   background          : 'rgba(0, 0, 0, 0.55)',
-  borderRadius        : '16px',
+  borderRadius        : '12px',
   boxShadow           : '0 4px 30px rgba(0, 0, 0, 0.1)',
   backdropFilter      : 'blur(1.9px)',
   WebkitBackdropFilter: 'blur(1.9px)',

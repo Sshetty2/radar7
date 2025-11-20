@@ -33,7 +33,8 @@ export function EventSidebar ({ events }: EventSidebarProps) {
       <SheetContent
         side="right"
         hideOverlay
-        className="w-full border-[rgba(35,34,34,0.59)] text-white sm:w-96 sm:max-w-96"
+        onInteractOutside={event => event.preventDefault()}
+        className="w-full border-[rgba(35,34,34,0.59)] text-white sm:bottom-6 sm:right-20 sm:top-6 sm:h-auto sm:max-h-[calc(100vh-3rem)] sm:w-[26rem] sm:max-w-[26rem] sm:rounded-[12px] sm:border-white/20 sm:shadow-2xl"
         style={GLASS_EFFECT_STYLE}
       >
         <SheetHeader>

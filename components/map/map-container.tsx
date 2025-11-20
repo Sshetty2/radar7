@@ -5,18 +5,18 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { setMapView, setBounds } from '@/lib/store/slices/mapSlice';
+import { setMapView } from '@/lib/store/slices/mapSlice';
 import { setEvents, setLoading, setError } from '@/lib/store/slices/eventsSlice';
 import { setSelectedEvent, selectMapStyle } from '@/lib/store/slices/uiSlice';
 import { selectFilters } from '@/lib/store/slices/filtersSlice';
 import { filterEvents } from '@/lib/utils/filter-events';
-import type { Event } from '@/lib/db/crawler-schema';
 
 import { MapControls } from './map-controls';
 import { SearchBox } from './search-box';
 import { FilterButton } from './filter-button';
 import { SidebarToggle } from './sidebar-toggle';
 import { MapStyleToggle } from './map-style-toggle';
+import { NewEventButton } from './new-event-button';
 import { EventSidebar } from '@/components/events/event-sidebar';
 import { EventDetailPopover } from '@/components/events/event-detail-popover';
 import { FilterModal } from '@/components/filters/filter-modal';
@@ -96,6 +96,7 @@ export function MapContainer() {
       map.remove();
       mapRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update lightPreset when toggle changes
@@ -240,6 +241,7 @@ export function MapContainer() {
       <FilterButton />
       <SidebarToggle />
       <MapStyleToggle />
+      <NewEventButton />
 
       {/* Modals and Sidebars */}
       <EventSidebar events={filteredEvents} />

@@ -56,7 +56,7 @@ export function MapControls () {
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 rounded-2xl border-[rgba(35,34,34,0.59)] text-white hover:bg-white/10"
+              className="h-11 w-11 rounded-xl border-[rgba(35,34,34,0.59)] text-white hover:bg-white/10"
               style={GLASS_EFFECT_STYLE}
             >
               <User className="h-5 w-5" />

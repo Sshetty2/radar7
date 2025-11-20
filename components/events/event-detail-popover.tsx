@@ -3,7 +3,6 @@
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -41,9 +40,9 @@ export function EventDetailPopover () {
     if (!date) {
       return 'TBD';
     }
-    const d = new Date(date);
+    const dateObj = new Date(date);
 
-    return d.toLocaleString('en-US', {
+    return dateObj.toLocaleString('en-US', {
       weekday: 'long',
       month  : 'long',
       day    : 'numeric',
@@ -98,190 +97,210 @@ export function EventDetailPopover () {
       open={!!selectedEventId}
       onOpenChange={handleClose}>
       <DialogContent
-        className="max-h-[90vh] max-w-2xl overflow-y-auto border-[rgba(35,34,34,0.59)] text-white data-[state=open]:slide-in-from-right-full data-[state=closed]:slide-out-to-right-full data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:duration-300 data-[state=closed]:duration-200 left-[40%] translate-x-[-50%]"
+        className="z-[60] w-full max-w-2xl overflow-hidden border-[rgba(35,34,34,0.59)] bg-transparent p-0 text-white top-[45%] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:duration-300 data-[state=closed]:duration-200 sm:rounded-[12px]"
         style={GLASS_EFFECT_STYLE}
       >
-        {/* Hero Image */}
-        {selectedEvent.imageUrl && (
-          <div className="relative -m-6 mb-4 aspect-video w-[calc(100%+3rem)] overflow-hidden">
+        {/* Hero Image + Title */}
+        {selectedEvent.imageUrl ? (
+          <div className="relative aspect-[2.5/1] w-full overflow-hidden rounded-t-[12px]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={selectedEvent.imageUrl}
               alt={selectedEvent.title || 'Event'}
               className="h-full w-full object-cover"
             />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute inset-x-6 bottom-3 flex items-end justify-between gap-4">
+              <div className="max-w-[70%]">
+                <DialogTitle className="text-xl font-semibold leading-tight text-white">
+                  {selectedEvent.title}
+                </DialogTitle>
+              </div>
+              {selectedEvent.category && (
+                <div className="shrink-0 rounded-full border border-white/60 bg-white/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
+                  {selectedEvent.category}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="px-6 pt-4">
+            <DialogTitle className="text-xl font-semibold leading-tight text-white">
+              {selectedEvent.title}
+            </DialogTitle>
+            {selectedEvent.category && (
+              <div className="mt-2 w-fit rounded-full border border-white/60 bg-white/35 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-lg">
+                {selectedEvent.category}
+              </div>
+            )}
           </div>
         )}
 
-        <DialogHeader>
-          <div className="flex items-start justify-between gap-4">
-            <DialogTitle className="text-2xl">{selectedEvent.title}</DialogTitle>
-            {selectedEvent.category && (
-              <Badge>{selectedEvent.category}</Badge>
-            )}
-          </div>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Date & Time */}
-          <div className="space-y-2">
-            <div className="flex items-start gap-3">
-              <Calendar className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
-              <div>
-                <p className="font-medium">{formatDate(selectedEvent.startsAt)}</p>
-                <p className="text-sm text-muted-foreground">
-                  {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Venue & Location */}
-          {selectedEvent.venueName && (
-            <div className="space-y-2">
-              <div className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="font-medium">{selectedEvent.venueName}</p>
-                  {selectedEvent.venueAddress && (
-                    <p className="text-sm text-muted-foreground">
-                      {selectedEvent.venueAddress}
-                    </p>
-                  )}
-                  {selectedEvent.venueAddress && (
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="h-auto p-0 text-xs"
-                      asChild
-                    >
-                      <a
-                        href={getDirectionsUrl()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Navigation className="mr-1 h-3 w-3" />
-                        Get Directions
-                      </a>
-                    </Button>
-                  )}
+        {/* Content - all sections compact and visible */}
+        <div className="px-6 pb-5">
+          <div className="space-y-4 pt-4">
+            {/* Compact Info Grid */}
+            <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+              {/* Date & Time */}
+              <div className="flex items-start gap-2.5">
+                <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-white">{formatDate(selectedEvent.startsAt)}</p>
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    {formatTime(selectedEvent.startsAt, selectedEvent.endsAt)}
+                  </p>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Organizer */}
-          {selectedEvent.organizer && (
-            <div className="flex items-center gap-3">
-              <User className="h-5 w-5 shrink-0 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-medium">Organized by</p>
-                <p className="text-sm text-muted-foreground">{selectedEvent.organizer}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Description */}
-          {selectedEvent.description && (
-            <div className="space-y-2">
-              <h3 className="font-semibold">About this event</h3>
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                {selectedEvent.description}
-              </p>
-            </div>
-          )}
-
-          {/* RSVP Stats */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Attending</p>
-                    <p className="text-2xl font-bold">
-                      {selectedEvent.rsvpCount || 0}
-                      {selectedEvent.rsvpTotal && (
-                        <span className="text-sm font-normal text-muted-foreground">
-                          {' '}
-                          / {selectedEvent.rsvpTotal}
-                        </span>
-                      )}
-                    </p>
+              {/* Venue & Location */}
+              {selectedEvent.venueName && (
+                <div className="flex items-start gap-2.5">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-white">{selectedEvent.venueName}</p>
+                    {selectedEvent.venueAddress && (
+                      <>
+                        <p className="mt-0.5 text-xs text-gray-400">
+                          {selectedEvent.venueAddress}
+                        </p>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="mt-0.5 h-auto p-0 text-xs text-blue-400 hover:text-blue-300"
+                          asChild
+                        >
+                          <a
+                            href={getDirectionsUrl()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Navigation className="mr-1 h-3 w-3" />
+                            Get Directions
+                          </a>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              )}
 
-            {selectedEvent.waitListCount && selectedEvent.waitListCount > 0 && (
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Waitlist</p>
-                      <p className="text-2xl font-bold">{selectedEvent.waitListCount}</p>
+              {/* Organizer */}
+              {selectedEvent.organizer && (
+                <div className="flex items-start gap-2.5">
+                  <User className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-gray-400">Organized by</p>
+                    <p className="mt-0.5 font-medium text-white">{selectedEvent.organizer}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Description - Only this scrolls */}
+            {selectedEvent.description && (
+              <div>
+                <h3 className="mb-2 text-sm font-semibold text-white">About this event</h3>
+                <div className="max-h-32 overflow-y-auto pr-2">
+                  <p className="whitespace-pre-wrap text-xs leading-relaxed text-gray-300">
+                    {selectedEvent.description}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* RSVP Stats - Compact */}
+            {(selectedEvent.rsvpCount || selectedEvent.waitListCount) && (
+              <div className="grid grid-cols-2 gap-2.5">
+                <Card className="border-white/10 bg-white/5">
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-gray-400" />
+                      <div>
+                        <p className="text-[10px] text-gray-400">Attending</p>
+                        <p className="text-lg font-bold leading-tight text-white">
+                          {selectedEvent.rsvpCount || 0}
+                          {selectedEvent.rsvpTotal && (
+                            <span className="text-xs font-normal text-gray-400">
+                              {' '}/ {selectedEvent.rsvpTotal}
+                            </span>
+                          )}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+                  </CardContent>
+                </Card>
 
-          {/* Price & Event Type */}
-          <div className="flex items-center gap-2">
-            {selectedEvent.price && (
-              <Badge
-                variant="secondary"
-                className="text-sm">
-                {selectedEvent.price}
-              </Badge>
+                {selectedEvent.waitListCount && selectedEvent.waitListCount > 0 ? (
+                  <Card className="border-white/10 bg-white/5">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-gray-400" />
+                        <div>
+                          <p className="text-[10px] text-gray-400">Waitlist</p>
+                          <p className="text-lg font-bold leading-tight text-white">{selectedEvent.waitListCount}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : null}
+              </div>
             )}
-            {selectedEvent.eventType && (
-              <Badge
-                variant="outline"
-                className="text-sm">
-                {selectedEvent.eventType}
-              </Badge>
-            )}
-            {selectedEvent.source && (
-              <Badge
-                variant="outline"
-                className="text-sm">
-                via {getSourceName(selectedEvent.source)}
-              </Badge>
-            )}
-          </div>
 
-          {/* CTAs */}
-          <div className="flex gap-3">
-            {selectedEvent.eventUrl && (
-              <Button
-                asChild
-                className="flex-1">
-                <a
-                  href={selectedEvent.eventUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  View on {getSourceName(selectedEvent.source)}
-                  <ExternalLink className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
+            {/* Metadata: Price, Type, Source */}
+            {(selectedEvent.price || selectedEvent.eventType || selectedEvent.source) && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {selectedEvent.price && (
+                  <Badge className="border-white/20 bg-emerald-500/20 text-[10px] text-emerald-200">
+                    {selectedEvent.price}
+                  </Badge>
+                )}
+                {selectedEvent.eventType && (
+                  <Badge className="border-white/20 bg-white/10 text-[10px] text-gray-300">
+                    {selectedEvent.eventType}
+                  </Badge>
+                )}
+                {selectedEvent.source && (
+                  <Badge className="border-white/20 bg-white/10 text-[10px] text-gray-400">
+                    via {getSourceName(selectedEvent.source)}
+                  </Badge>
+                )}
+              </div>
             )}
-            {selectedEvent.ticketUrl && (
-              <Button
-                variant="outline"
-                asChild>
-                <a
-                  href={selectedEvent.ticketUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Get Tickets
-                  <ExternalLink className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
-            )}
+
+            {/* CTAs */}
+            <div className="flex gap-2.5 pt-1">
+              {selectedEvent.eventUrl && (
+                <Button
+                  asChild
+                  size="sm"
+                  className="flex-1 bg-white text-black hover:bg-gray-200">
+                  <a
+                    href={selectedEvent.eventUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View on {getSourceName(selectedEvent.source)}
+                    <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                  </a>
+                </Button>
+              )}
+              {selectedEvent.ticketUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="border-white/30 text-white hover:bg-white/10">
+                  <a
+                    href={selectedEvent.ticketUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Get Tickets
+                    <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                  </a>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>
