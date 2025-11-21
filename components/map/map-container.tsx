@@ -25,7 +25,7 @@ import { FilterModal } from '@/components/filters/filter-modal';
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
 
 // Custom map style
-const CUSTOM_STYLE = 'mapbox://styles/sshetty/cmi6eifvr000a01ry1rn1bz8u';
+const CUSTOM_STYLE = 'mapbox://styles/sshetty/cmi7w7y3d003501sb3yqy0be6';
 
 // eslint-disable-next-line space-before-function-paren
 export function MapContainer() {
