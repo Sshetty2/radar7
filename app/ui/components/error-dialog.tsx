@@ -39,9 +39,9 @@ export function ErrorDialog () {
     <AlertDialog
       open={errorDialog.open}
       onOpenChange={() => dispatch(closeErrorDialog())}>
-      <AlertDialogContent className="glass-error glass-text">
+      <AlertDialogContent className="glass-error border-border/50 !bg-transparent">
         <AlertDialogHeader>
-          <AlertDialogTitle>
+          <AlertDialogTitle className="glass-text">
             {errorDialog.title}
           </AlertDialogTitle>
           <AlertDialogDescription className="glass-text-muted">

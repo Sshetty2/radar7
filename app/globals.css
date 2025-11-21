@@ -108,13 +108,13 @@
   --glass-icon: 240 5% 35%;
 
   /* Severity-based glass variants for light theme */
-  --glass-bg-error: rgb(239 68 68 / 75%);
+  --glass-bg-error: rgb(239 68 68 / 65%);
   --glass-border-error: rgb(239 68 68 / 30%);
-  --glass-bg-warning: rgb(245 158 11 / 75%);
-  --glass-border-warning: rgb(245 158 11 / 30%);
-  --glass-bg-info: rgb(59 130 246 / 75%);
+  --glass-bg-warning: rgb(234 179 8 / 65%);
+  --glass-border-warning: rgb(234 179 8 / 30%);
+  --glass-bg-info: rgb(59 130 246 / 65%);
   --glass-border-info: rgb(59 130 246 / 30%);
-  --glass-bg-success: rgb(16 185 129 / 75%);
+  --glass-bg-success: rgb(16 185 129 / 65%);
   --glass-border-success: rgb(16 185 129 / 30%);
 }
 
@@ -160,13 +160,13 @@
   --glass-icon: 0 0% 90%;
 
   /* Severity-based glass variants for dark theme */
-  --glass-bg-error: rgb(185 28 28 / 85%);
+  --glass-bg-error: rgb(185 28 28 / 65%);
   --glass-border-error: rgb(239 68 68 / 50%);
-  --glass-bg-warning: rgb(217 119 6 / 85%);
-  --glass-border-warning: rgb(245 158 11 / 50%);
-  --glass-bg-info: rgb(29 78 216 / 85%);
+  --glass-bg-warning: rgb(202 138 4 / 65%);
+  --glass-border-warning: rgb(234 179 8 / 50%);
+  --glass-bg-info: rgb(29 78 216 / 65%);
   --glass-border-info: rgb(59 130 246 / 50%);
-  --glass-bg-success: rgb(5 150 105 / 85%);
+  --glass-bg-success: rgb(5 150 105 / 65%);
   --glass-border-success: rgb(16 185 129 / 50%);
 }
 
@@ -272,7 +272,8 @@ body {
 
 /* Glass morphism utility classes */
 .glass {
-  background: var(--glass-bg);
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(2.5px);
   backdrop-filter: blur(2.5px);
   border: 1px solid var(--glass-border);
   box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
@@ -292,28 +293,32 @@ body {
 
 /* Severity-based glass variants */
 .glass-error {
-  background: var(--glass-bg-error);
+  background: var(--glass-bg-error) !important;
+  backdrop-filter: blur(2.5px);
   backdrop-filter: blur(2.5px);
   border: 1px solid var(--glass-border-error);
   box-shadow: 0 4px 30px rgb(239 68 68 / 15%);
 }
 
 .glass-warning {
-  background: var(--glass-bg-warning);
+  background: var(--glass-bg-warning) !important;
+  backdrop-filter: blur(2.5px);
   backdrop-filter: blur(2.5px);
   border: 1px solid var(--glass-border-warning);
-  box-shadow: 0 4px 30px rgb(245 158 11 / 15%);
+  box-shadow: 0 4px 30px rgb(234 179 8 / 15%);
 }
 
 .glass-info {
-  background: var(--glass-bg-info);
+  background: var(--glass-bg-info) !important;
+  backdrop-filter: blur(2.5px);
   backdrop-filter: blur(2.5px);
   border: 1px solid var(--glass-border-info);
   box-shadow: 0 4px 30px rgb(59 130 246 / 15%);
 }
 
 .glass-success {
-  background: var(--glass-bg-success);
+  background: var(--glass-bg-success) !important;
+  backdrop-filter: blur(2.5px);
   backdrop-filter: blur(2.5px);
   border: 1px solid var(--glass-border-success);
   box-shadow: 0 4px 30px rgb(16 185 129 / 15%);
