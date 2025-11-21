@@ -13,7 +13,7 @@ import {
   selectSidebarOpen
 } from '@/lib/store/slices/uiSlice';
 import { selectPOIById, selectPOILoading, selectPOIError } from '@/lib/store/slices/poiSlice';
-import { DetailPopoverBase } from '@/components/shared/detail-popover-base';
+import { DetailPopoverBase } from '@/components/shared/detail-dialog-base';
 import { getDirectionsUrl, getSourceName } from '@/lib/utils/popover-helpers';
 import { buildFoursquarePhotoUrl } from '@/lib/api/foursquare-places';
 import {

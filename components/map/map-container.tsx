@@ -22,9 +22,10 @@ import { SidebarToggle } from './sidebar-toggle';
 import { MapStyleToggle } from './map-style-toggle';
 import { NewEventButton } from './new-event-button';
 import { EventSidebar } from '@/components/events/event-sidebar';
-import { EventDetailPopover } from '@/components/events/event-detail-popover';
-import { POIDetailPopover } from '@/components/poi/poi-detail-popover';
+import { EventDetailPopover } from '@/components/events/event-detail-dialog';
+import { POIDetailPopover } from '@/components/poi/poi-detail-dialog';
 import { FilterModal } from '@/components/filters/filter-modal';
+import { toastError, toastInfo } from '@/components/ui/toast-variants';
 
 // Set Mapbox access token
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
@@ -171,6 +172,7 @@ export function MapContainer() {
           if (response.status === 404) {
             // No POI found at this location
             dispatch(fetchPOIFailure('No POI found at this location'));
+            toastInfo('No place details found at this location');
 
             return;
           }
@@ -201,6 +203,7 @@ export function MapContainer() {
       } catch (error) {
         console.error('Error fetching POI:', error);
         dispatch(fetchPOIFailure(error instanceof Error ? error.message : 'Unknown error'));
+        toastError('Failed to load place details. Please try again.');
       }
     });
 
@@ -260,6 +263,7 @@ export function MapContainer() {
         dispatch(setEvents(events));
       } catch (error) {
         dispatch(setError(error instanceof Error ? error.message : 'Failed to load events'));
+        toastError('Failed to load nearby events');
       }
     };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/ui/icon-button';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { toggleSidebar, selectSidebarOpen } from '@/lib/store/slices/uiSlice';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -17,20 +17,17 @@ export function SidebarToggle () {
         sidebarOpen && 'sm:right-[calc(15rem+6.5rem)] md:right-[calc(17rem+6.5rem)] lg:right-[calc(20rem+6.5rem)] xl:right-[calc(24rem+6.5rem)] 2xl:right-[calc(26rem+6.5rem)]'
       )}
     >
-      <Button
+      <IconButton
         onClick={() => dispatch(toggleSidebar())}
-        size="icon"
-        variant="outline"
         aria-pressed={sidebarOpen}
         aria-label={sidebarOpen ? 'Close event sidebar' : 'Open event sidebar'}
-        className="glass h-11 w-11 cursor-pointer rounded-xl glass-text hover:bg-secondary/50 hover:scale-105 dark:hover:bg-white/15 transition-all duration-200"
       >
         {sidebarOpen ? (
-          <ChevronRight className="h-5 w-5 transition-all duration-200" />
+          <ChevronRight className="h-5 w-5" />
         ) : (
-          <ChevronLeft className="h-5 w-5 transition-all duration-200" />
+          <ChevronLeft className="h-5 w-5" />
         )}
-      </Button>
+      </IconButton>
     </div>
   );
 }

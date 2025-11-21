@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/ui/icon-button';
 import {
   Dialog,
   DialogContent,
@@ -18,14 +19,12 @@ export function NewEventButton () {
     <>
       {/* New Event Button */}
       <div className="absolute bottom-32 right-4 z-10 md:bottom-8">
-        <Button
-          variant="outline"
-          size="icon"
-          className="glass h-11 w-11 cursor-pointer shrink-0 rounded-xl glass-text hover:bg-secondary/50 hover:scale-105 dark:hover:bg-white/15 transition-all duration-200"
+        <IconButton
+          className="shrink-0"
           onClick={() => setNewEventModalOpen(true)}
         >
           <PlusIcon size={18} />
-        </Button>
+        </IconButton>
       </div>
 
       {/* New Event Modal */}

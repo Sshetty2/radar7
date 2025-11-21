@@ -1,7 +1,7 @@
 'use client';
 
 import { Radar7Logo } from '@/components/logo/radar7-logo';
-import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/ui/icon-button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,13 +34,9 @@ export function MapControls () {
       <div className="absolute right-6 top-6 z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="glass h-11 w-11 cursor-pointer rounded-xl glass-text hover:bg-secondary/50 hover:scale-105 dark:hover:bg-white/15 transition-all duration-200"
-            >
+            <IconButton>
               <User className="h-5 w-5" />
-            </Button>
+            </IconButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"

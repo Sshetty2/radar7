@@ -14,7 +14,7 @@ import {
   User,
   Clock
 } from 'lucide-react';
-import { DetailPopoverBase } from '@/components/shared/detail-popover-base';
+import { DetailPopoverBase } from '@/components/shared/detail-dialog-base';
 import { formatDate, formatTime, getDirectionsUrl, getSourceName } from '@/lib/utils/popover-helpers';
 
 export function EventDetailPopover () {

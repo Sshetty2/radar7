@@ -106,6 +106,16 @@
   --glass-text: 240 10% 3.9%;
   --glass-text-muted: 240 3.8% 46.1%;
   --glass-icon: 240 5% 35%;
+
+  /* Severity-based glass variants for light theme */
+  --glass-bg-error: rgb(239 68 68 / 75%);
+  --glass-border-error: rgb(239 68 68 / 30%);
+  --glass-bg-warning: rgb(245 158 11 / 75%);
+  --glass-border-warning: rgb(245 158 11 / 30%);
+  --glass-bg-info: rgb(59 130 246 / 75%);
+  --glass-border-info: rgb(59 130 246 / 30%);
+  --glass-bg-success: rgb(16 185 129 / 75%);
+  --glass-border-success: rgb(16 185 129 / 30%);
 }
 
 .dark {
@@ -148,6 +158,16 @@
   --glass-text: 0 0% 100%;
   --glass-text-muted: 240 5% 75%;
   --glass-icon: 0 0% 90%;
+
+  /* Severity-based glass variants for dark theme */
+  --glass-bg-error: rgb(185 28 28 / 85%);
+  --glass-border-error: rgb(239 68 68 / 50%);
+  --glass-bg-warning: rgb(217 119 6 / 85%);
+  --glass-border-warning: rgb(245 158 11 / 50%);
+  --glass-bg-info: rgb(29 78 216 / 85%);
+  --glass-border-info: rgb(59 130 246 / 50%);
+  --glass-bg-success: rgb(5 150 105 / 85%);
+  --glass-border-success: rgb(16 185 129 / 50%);
 }
 
 * {
@@ -254,7 +274,6 @@ body {
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(2.5px);
-  backdrop-filter: blur(2.5px);
   border: 1px solid var(--glass-border);
   box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
 }
@@ -269,6 +288,35 @@ body {
 
 .glass-icon {
   color: hsl(var(--glass-icon));
+}
+
+/* Severity-based glass variants */
+.glass-error {
+  background: var(--glass-bg-error);
+  backdrop-filter: blur(2.5px);
+  border: 1px solid var(--glass-border-error);
+  box-shadow: 0 4px 30px rgb(239 68 68 / 15%);
+}
+
+.glass-warning {
+  background: var(--glass-bg-warning);
+  backdrop-filter: blur(2.5px);
+  border: 1px solid var(--glass-border-warning);
+  box-shadow: 0 4px 30px rgb(245 158 11 / 15%);
+}
+
+.glass-info {
+  background: var(--glass-bg-info);
+  backdrop-filter: blur(2.5px);
+  border: 1px solid var(--glass-border-info);
+  box-shadow: 0 4px 30px rgb(59 130 246 / 15%);
+}
+
+.glass-success {
+  background: var(--glass-bg-success);
+  backdrop-filter: blur(2.5px);
+  border: 1px solid var(--glass-border-success);
+  box-shadow: 0 4px 30px rgb(16 185 129 / 15%);
 }
 
 /* Icon button hover effects */

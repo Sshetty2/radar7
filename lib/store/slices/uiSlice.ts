@@ -1,6 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../store';
 
+interface ErrorDialogState {
+  open: boolean;
+  title: string;
+  description: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}
+
 interface UIState {
   sidebarOpen: boolean;
   selectedEventId: string | null;
@@ -8,6 +16,7 @@ interface UIState {
   filterModalOpen: boolean;
   searchMode: 'address' | 'natural';
   mapStyle: 'day' | 'night';
+  errorDialog: ErrorDialogState;
 }
 
 const initialState: UIState = {
@@ -16,7 +25,12 @@ const initialState: UIState = {
   selectedPoiId  : null,
   filterModalOpen: false,
   searchMode     : 'address',
-  mapStyle       : 'night'
+  mapStyle       : 'night',
+  errorDialog    : {
+    open       : false,
+    title      : '',
+    description: ''
+  }
 };
 
 const uiSlice = createSlice({
@@ -62,6 +76,19 @@ const uiSlice = createSlice({
     },
     toggleMapStyle: state => {
       state.mapStyle = state.mapStyle === 'day' ? 'night' : 'day';
+    },
+    showErrorDialog: (state, action: PayloadAction<Omit<ErrorDialogState, 'open'>>) => {
+      state.errorDialog = {
+        ...action.payload,
+        open: true
+      };
+    },
+    closeErrorDialog: state => {
+      state.errorDialog = {
+        open       : false,
+        title      : '',
+        description: ''
+      };
     }
   }
 });
@@ -76,7 +103,9 @@ export const {
   setSearchMode,
   toggleSearchMode,
   setMapStyle,
-  toggleMapStyle
+  toggleMapStyle,
+  showErrorDialog,
+  closeErrorDialog
 } = uiSlice.actions;
 
 // Selectors
@@ -91,5 +120,7 @@ export const selectFilterModalOpen = (state: RootState) => state.ui.filterModalO
 export const selectSearchMode = (state: RootState) => state.ui.searchMode;
 
 export const selectMapStyle = (state: RootState) => state.ui.mapStyle;
+
+export const selectErrorDialog = (state: RootState) => state.ui.errorDialog;
 
 export default uiSlice.reducer;
