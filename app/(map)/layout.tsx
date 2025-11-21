@@ -1,4 +1,3 @@
-import { ReduxProvider } from '@/lib/store/provider';
 import { auth } from '../(auth)/auth';
 
 export default async function MapLayout ({ children }: {
@@ -6,5 +5,5 @@ export default async function MapLayout ({ children }: {
 }) {
   const session = await auth();
 
-  return <ReduxProvider>{children}</ReduxProvider>;
+  return <>{children}</>;
 }

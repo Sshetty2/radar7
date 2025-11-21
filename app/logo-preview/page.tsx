@@ -1,4 +1,4 @@
-import { Radar7Logo } from '@/components/logo/radar7-logo';
+import { Radar7Logo } from '@/app/ui/logo/radar7-logo';
 
 export default function LogoPreviewPage () {
   return (
