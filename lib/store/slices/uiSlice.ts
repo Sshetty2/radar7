@@ -4,6 +4,7 @@ import type { RootState } from '../store';
 interface UIState {
   sidebarOpen: boolean;
   selectedEventId: string | null;
+  selectedPoiId: string | null;
   filterModalOpen: boolean;
   searchMode: 'address' | 'natural';
   mapStyle: 'day' | 'night';
@@ -12,6 +13,7 @@ interface UIState {
 const initialState: UIState = {
   sidebarOpen    : false,
   selectedEventId: null,
+  selectedPoiId  : null,
   filterModalOpen: false,
   searchMode     : 'address',
   mapStyle       : 'night'
@@ -29,6 +31,19 @@ const uiSlice = createSlice({
     },
     setSelectedEvent: (state, action: PayloadAction<string | null>) => {
       state.selectedEventId = action.payload;
+
+      // Clear POI selection when event is selected (mutually exclusive)
+      if (action.payload !== null) {
+        state.selectedPoiId = null;
+      }
+    },
+    setSelectedPoi: (state, action: PayloadAction<string | null>) => {
+      state.selectedPoiId = action.payload;
+
+      // Clear event selection when POI is selected (mutually exclusive)
+      if (action.payload !== null) {
+        state.selectedEventId = null;
+      }
     },
     toggleFilterModal: state => {
       state.filterModalOpen = !state.filterModalOpen;
@@ -55,6 +70,7 @@ export const {
   toggleSidebar,
   setSidebarOpen,
   setSelectedEvent,
+  setSelectedPoi,
   toggleFilterModal,
   setFilterModalOpen,
   setSearchMode,
@@ -67,6 +83,8 @@ export const {
 export const selectSidebarOpen = (state: RootState) => state.ui.sidebarOpen;
 
 export const selectSelectedEventId = (state: RootState) => state.ui.selectedEventId;
+
+export const selectSelectedPoiId = (state: RootState) => state.ui.selectedPoiId;
 
 export const selectFilterModalOpen = (state: RootState) => state.ui.filterModalOpen;
 

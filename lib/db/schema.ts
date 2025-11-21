@@ -8,7 +8,10 @@ import {
   primaryKey,
   foreignKey,
   boolean,
-  pgSchema
+  pgSchema,
+  pgTable,
+  real,
+  integer
 } from 'drizzle-orm/pg-core';
 
 export const clientSchema = pgSchema('client');
@@ -116,3 +119,55 @@ export const suggestion = clientSchema.table(
 );
 
 export type Suggestion = InferSelectModel<typeof suggestion>;
+
+// POI (Point of Interest) caching table
+// Using pgTable for public schema (same as other tables in the original migration)
+export const poi = pgTable('POI', {
+  id      : varchar('id', { length: 255 }).primaryKey()
+    .notNull(), // Foursquare fsq_id or generated coordinate-based ID
+  name    : text('name').notNull(),
+  address : text('address').notNull(),
+  category: varchar('category', { length: 100 }).notNull(),
+
+  // Coordinates
+  latitude : real('latitude').notNull(),
+  longitude: real('longitude').notNull(),
+
+  // Foursquare data (JSON for flexibility)
+  properties: json('properties'), // Additional Foursquare properties
+  photos    : json('photos'), // Array of POIPhoto objects
+  categories: json('categories'), // Full categories array with icons and IDs
+  location  : json('location'), // Full location object with all address components
+
+  // Main image URL
+  imageUrl: text('imageUrl'),
+
+  // POI metadata
+  rating    : real('rating'),
+  price     : integer('price'), // 1-4 scale
+  hours     : text('hours'), // Display string (e.g., "Mon–Sun: 24 Hours")
+  hoursData : json('hoursData'), // Full hours object with regular schedule
+  openNow   : boolean('openNow'), // Whether place is currently open
+  phone     : varchar('phone', { length: 50 }),
+  website   : text('website'),
+  tips      : json('tips'), // Array of tip objects with text and created_at
+  tipsCount : integer('tipsCount'),
+  popularity: real('popularity'),
+  distance  : real('distance'), // Distance from search point in meters
+
+  // AI-generated description
+  aiDescription: text('aiDescription'),
+
+  // Cache management
+  createdAt: timestamp('createdAt').notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull()
+    .defaultNow(),
+  expiresAt: timestamp('expiresAt').notNull(), // Cache expiration (7 days default)
+
+  // Source tracking
+  source: varchar('source', { length: 50 }).notNull()
+    .default('foursquare')
+});
+
+export type POI = InferSelectModel<typeof poi>;

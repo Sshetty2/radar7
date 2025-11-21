@@ -3,13 +3,15 @@ import mapReducer from './slices/mapSlice';
 import eventsReducer from './slices/eventsSlice';
 import uiReducer from './slices/uiSlice';
 import filtersReducer from './slices/filtersSlice';
+import poiReducer from './slices/poiSlice';
 
 export const store = configureStore({
   reducer: {
     map    : mapReducer,
     events : eventsReducer,
     ui     : uiReducer,
-    filters: filtersReducer
+    filters: filtersReducer,
+    poi    : poiReducer
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware({
     serializableCheck: {

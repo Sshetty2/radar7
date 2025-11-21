@@ -1,3 +1,4 @@
+/* eslint-disable max-statements */
 /* eslint-disable key-spacing */
 'use client';
 
@@ -7,9 +8,12 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { setMapView } from '@/lib/store/slices/mapSlice';
 import { setEvents, setLoading, setError } from '@/lib/store/slices/eventsSlice';
-import { setSelectedEvent, selectMapStyle } from '@/lib/store/slices/uiSlice';
+import { setSelectedEvent, setSelectedPoi, selectMapStyle } from '@/lib/store/slices/uiSlice';
+import { fetchPOIStart, fetchPOISuccess, fetchPOIFailure } from '@/lib/store/slices/poiSlice';
 import { selectFilters } from '@/lib/store/slices/filtersSlice';
 import { filterEvents } from '@/lib/utils/filter-events';
+import { getPOICategoryColor } from '@/lib/utils/category-colors';
+import type { POI } from '@/lib/types/poi';
 
 import { MapControls } from './map-controls';
 import { SearchBox } from './search-box';
@@ -19,6 +23,7 @@ import { MapStyleToggle } from './map-style-toggle';
 import { NewEventButton } from './new-event-button';
 import { EventSidebar } from '@/components/events/event-sidebar';
 import { EventDetailPopover } from '@/components/events/event-detail-popover';
+import { POIDetailPopover } from '@/components/poi/poi-detail-popover';
 import { FilterModal } from '@/components/filters/filter-modal';
 
 // Set Mapbox access token
@@ -32,6 +37,7 @@ export function MapContainer() {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const poiMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
   const dispatch = useAppDispatch();
 
@@ -87,6 +93,129 @@ export function MapContainer() {
           ]
         })
       );
+    });
+
+    // Handle POI clicks using queryRenderedFeatures
+    // Query what's rendered at the exact click point
+    map.on('click', async e => {
+      // Check if click is on event marker
+      const clickedOnMarker = (e.originalEvent.target as HTMLElement)?.closest('.mapboxgl-marker');
+
+      if (clickedOnMarker) {
+        return;
+      }
+
+      // Query all features at the exact click point
+      const features = map.queryRenderedFeatures(e.point);
+
+      // Debug: log first 5 features to understand what's available
+      if (features.length > 0) {
+        console.log('🔍 Features at click point:', features.slice(0, 5).map(f => ({
+          maki: f.properties?.maki,
+          target: (f as any).target?.featuresetId,
+          layer: f.layer?.id,
+          sourceLayer: f.sourceLayer,
+          type: f.layer?.type,
+          name: f.properties?.name,
+          class: f.properties?.class
+        })));
+      }
+
+      // Look for POI features - check if target.featuresetId is 'poi'
+      // This filters out buildings, markers, and other non-POI features
+      const poiFeature = features.find(f => {
+        // Type assertion since Mapbox GL types don't include 'target' yet
+        const target = (f as any).target?.featuresetId;
+
+        // Primary check: target featureset is 'poi'
+        if (target === 'poi') {
+          return true;
+        }
+
+        // Fallback for older styles or custom styles without target
+        const layerId = f.layer?.id || '';
+        const sourceLayer = f.sourceLayer || '';
+        const hasName = f.properties?.name;
+
+        return (
+          layerId.includes('poi')
+          || layerId.includes('place')
+          || sourceLayer.includes('poi')
+          || hasName && f.layer?.type === 'symbol' && !layerId.includes('road') && !layerId.includes('water')
+        );
+      });
+
+      if (!poiFeature || !poiFeature.properties?.name) {
+        // console.log('❌ No POI feature found at click point');
+        return;
+      }
+
+      const { lng, lat } = e.lngLat;
+      const poiName = poiFeature.properties.name;
+
+      console.log('✅ Clicked on POI:', poiName, 'at', lat, lng);
+
+      try {
+        // Start loading
+        dispatch(fetchPOIStart());
+
+        // Fetch POI data from API with query parameter (POI name)
+        const queryParams = new URLSearchParams({
+          lng: lng.toString(),
+          lat: lat.toString(),
+          query: poiName
+        });
+        const response = await fetch(`/api/poi?${queryParams}`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            // No POI found at this location
+            dispatch(fetchPOIFailure('No POI found at this location'));
+
+            return;
+          }
+          throw new Error('Failed to fetch POI data');
+        }
+
+        const poi: POI = await response.json();
+
+        // Store POI in Redux and select it
+        dispatch(fetchPOISuccess(poi));
+        dispatch(setSelectedPoi(poi.id));
+
+        // Add POI marker to map
+        if (poiMarkerRef.current) {
+          poiMarkerRef.current.remove();
+        }
+
+        const poiColor = getPOICategoryColor(poi.category);
+        const poiMarker = new mapboxgl.Marker({
+          color : poiColor,
+          scale : 0.9, // Slightly larger than event markers
+          anchor: 'bottom'
+        })
+          .setLngLat([lng, lat])
+          .addTo(map);
+
+        poiMarkerRef.current = poiMarker;
+      } catch (error) {
+        console.error('Error fetching POI:', error);
+        dispatch(fetchPOIFailure(error instanceof Error ? error.message : 'Unknown error'));
+      }
+    });
+
+    // Change cursor to pointer when hovering over POI features
+    map.on('mousemove', e => {
+      const features = map.queryRenderedFeatures(e.point);
+
+      // Look for POI features using the same logic as click handler
+      const poiFeature = features.find(f => {
+        const target = (f as any).target?.featuresetId;
+
+        return target === 'poi';
+      });
+
+      map.getCanvas().style.cursor = poiFeature ? 'pointer' : '';
     });
 
     mapRef.current = map;
@@ -228,6 +357,24 @@ export function MapContainer() {
     };
   }, [filteredEvents, mounted, dispatch]);
 
+  // Handle POI marker cleanup when selections change
+  const selectedEventId = useAppSelector(state => state.ui.selectedEventId);
+  const selectedPoiId = useAppSelector(state => state.ui.selectedPoiId);
+
+  useEffect(() => {
+    // Clear POI marker when event is selected
+    if (selectedEventId && poiMarkerRef.current) {
+      poiMarkerRef.current.remove();
+      poiMarkerRef.current = null;
+    }
+
+    // Clear POI marker when POI is deselected
+    if (!selectedPoiId && poiMarkerRef.current) {
+      poiMarkerRef.current.remove();
+      poiMarkerRef.current = null;
+    }
+  }, [selectedEventId, selectedPoiId]);
+
   return (
     <div className="relative h-full w-full">
       {/* Map container */}
@@ -246,6 +393,7 @@ export function MapContainer() {
       {/* Modals and Sidebars */}
       <EventSidebar events={filteredEvents} />
       <EventDetailPopover />
+      <POIDetailPopover />
       <FilterModal />
     </div>
   );
